@@ -12,12 +12,15 @@ const (
 	Alibaba = "alibaba"
 	// Aws is the Amazon Web Services cloud service provider.
 	Aws = "aws"
+	// Azure is the Microsoft Azure cloud service provider.
+	Azure = "azure"
 )
 
 // SupportedProviders is a list of supported cloud service providers.
 var SupportedProviders = []ProviderId{
 	Alibaba,
 	Aws,
+	Azure,
 }
 
 // Logger is the logger used by the package.
