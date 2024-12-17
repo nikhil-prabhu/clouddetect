@@ -10,11 +10,14 @@ const (
 	Unknown ProviderId = "unknown"
 	// Alibaba is the Alibaba Cloud service provider.
 	Alibaba = "alibaba"
+	// Aws is the Amazon Web Services cloud service provider.
+	Aws = "aws"
 )
 
 // SupportedProviders is a list of supported cloud service providers.
 var SupportedProviders = []ProviderId{
 	Alibaba,
+	Aws,
 }
 
 // Logger is the logger used by the package.

@@ -1,0 +1,188 @@
+package aws
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"strings"
+
+	"github.com/nikhil-prabhu/clouddetect"
+)
+
+const (
+	metadataURL        string = "http://169.254.169.254/latest/dynamic/instance-identity/document"
+	tokenURL           string = "http://169.254.169.254/latest/api/token"
+	productVersionFile        = "/sys/class/dmi/id/product_version"
+	biosVendorFile            = "/sys/class/dmi/id/bios_vendor"
+	identifier                = clouddetect.Aws
+)
+
+type metadataResponse struct {
+	ImageId    string `json:"imageId"`
+	InstanceId string `json:"instanceId"`
+}
+
+type Aws struct{}
+
+func (a *Aws) Identifier() clouddetect.ProviderId {
+	return identifier
+}
+
+func (a *Aws) getMetadataIMDSv1() (*metadataResponse, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", metadataURL, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			clouddetect.Logger.Error(fmt.Sprintf("Error closing response body: %s", err))
+		}
+	}(resp.Body)
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("error response status code: %d", resp.StatusCode)
+	}
+
+	metadata := new(metadataResponse)
+	if err = json.NewDecoder(resp.Body).Decode(metadata); err != nil {
+		return nil, err
+	}
+
+	return metadata, nil
+}
+
+func (a *Aws) getMetadataIMDSv2() (*metadataResponse, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", tokenURL, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("X-aws-ec2-metadata-token-ttl-seconds", "60")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			clouddetect.Logger.Error(fmt.Sprintf("Error closing response body: %s", err))
+		}
+	}(resp.Body)
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("error response status code: %d", resp.StatusCode)
+	}
+
+	token, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err = http.NewRequest("GET", metadataURL, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("X-aws-ec2-metadata-token", string(token))
+
+	resp, err = client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			clouddetect.Logger.Error(fmt.Sprintf("Error closing response body: %s", err))
+		}
+	}(resp.Body)
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("error response status code: %d", resp.StatusCode)
+	}
+
+	metadata := new(metadataResponse)
+	if err = json.NewDecoder(resp.Body).Decode(metadata); err != nil {
+		return nil, err
+	}
+
+	return metadata, nil
+}
+
+func (a *Aws) Identify(ch chan clouddetect.ProviderId) {
+	if a.checkMetadataServerV2() {
+		ch <- identifier
+		return
+	}
+
+	if a.checkMetadataServerV1() {
+		ch <- identifier
+		return
+	}
+
+	if a.checkProductVersionFile(productVersionFile) {
+		ch <- identifier
+		return
+	}
+
+	if a.checkBiosVendorFile(biosVendorFile) {
+		ch <- identifier
+		return
+	}
+}
+
+func (a *Aws) checkMetadataServerV2() bool {
+	clouddetect.Logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
+
+	metadata, err := a.getMetadataIMDSv2()
+	if err != nil {
+		clouddetect.Logger.Error(fmt.Sprintf("Error reading response: %s", err))
+		return false
+	}
+
+	return strings.HasPrefix(metadata.ImageId, "ami-") && strings.HasPrefix(metadata.InstanceId, "i-")
+}
+
+func (a *Aws) checkMetadataServerV1() bool {
+	clouddetect.Logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
+
+	metadata, err := a.getMetadataIMDSv1()
+	if err != nil {
+		clouddetect.Logger.Error(fmt.Sprintf("Error reading response: %s", err))
+		return false
+	}
+
+	return strings.HasPrefix(metadata.ImageId, "ami-") && strings.HasPrefix(metadata.InstanceId, "i-")
+}
+
+func (a *Aws) checkProductVersionFile(file string) bool {
+	clouddetect.Logger.Debug(fmt.Sprintf("Checking %s product version file %s", identifier, file))
+
+	content, err := os.ReadFile(file)
+	if err != nil {
+		clouddetect.Logger.Error(fmt.Sprintf("Error reading file: %s", err))
+		return false
+	}
+
+	return strings.Contains(strings.ToLower(string(content)), "amazon")
+}
+
+func (a *Aws) checkBiosVendorFile(file string) bool {
+	clouddetect.Logger.Debug(fmt.Sprintf("Checking %s bios vendor file %s", identifier, file))
+
+	content, err := os.ReadFile(file)
+	if err != nil {
+		clouddetect.Logger.Error(fmt.Sprintf("Error reading file: %s", err))
+		return false
+	}
+
+	return strings.Contains(strings.ToLower(string(content)), "amazon")
+}
