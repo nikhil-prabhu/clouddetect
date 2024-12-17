@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/jarcoal/httpmock"
-	"github.com/nikhil-prabhu/clouddetect"
+	"github.com/nikhil-prabhu/clouddetect/types"
 )
 
 func TestIdentifier(t *testing.T) {
@@ -21,7 +21,7 @@ func TestIdentify(t *testing.T) {
 	tests := []struct {
 		name           string
 		setupMock      func()
-		expectedResult clouddetect.ProviderId
+		expectedResult types.ProviderId
 	}{
 		{
 			name: "IMDSv2 succeeds",
@@ -55,7 +55,7 @@ func TestIdentify(t *testing.T) {
 			tt.setupMock()
 
 			a := &Aws{}
-			ch := make(chan clouddetect.ProviderId)
+			ch := make(chan types.ProviderId)
 
 			go a.Identify(ch)
 

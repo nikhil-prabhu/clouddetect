@@ -8,7 +8,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/nikhil-prabhu/clouddetect"
+	"github.com/nikhil-prabhu/clouddetect/logging"
+	"github.com/nikhil-prabhu/clouddetect/types"
 )
 
 const (
@@ -16,7 +17,7 @@ const (
 	tokenURL           string = "http://169.254.169.254/latest/api/token"
 	productVersionFile        = "/sys/class/dmi/id/product_version"
 	biosVendorFile            = "/sys/class/dmi/id/bios_vendor"
-	identifier                = clouddetect.Aws
+	identifier                = types.Aws
 )
 
 type metadataResponse struct {
@@ -26,7 +27,7 @@ type metadataResponse struct {
 
 type Aws struct{}
 
-func (a *Aws) Identifier() clouddetect.ProviderId {
+func (a *Aws) Identifier() types.ProviderId {
 	return identifier
 }
 
@@ -44,7 +45,7 @@ func (a *Aws) getMetadataIMDSv1() (*metadataResponse, error) {
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			clouddetect.Logger.Error(fmt.Sprintf("Error closing response body: %s", err))
+			logging.Logger.Error(fmt.Sprintf("Error closing response body: %s", err))
 		}
 	}(resp.Body)
 
@@ -75,7 +76,7 @@ func (a *Aws) getMetadataIMDSv2() (*metadataResponse, error) {
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			clouddetect.Logger.Error(fmt.Sprintf("Error closing response body: %s", err))
+			logging.Logger.Error(fmt.Sprintf("Error closing response body: %s", err))
 		}
 	}(resp.Body)
 
@@ -101,7 +102,7 @@ func (a *Aws) getMetadataIMDSv2() (*metadataResponse, error) {
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			clouddetect.Logger.Error(fmt.Sprintf("Error closing response body: %s", err))
+			logging.Logger.Error(fmt.Sprintf("Error closing response body: %s", err))
 		}
 	}(resp.Body)
 
@@ -117,7 +118,7 @@ func (a *Aws) getMetadataIMDSv2() (*metadataResponse, error) {
 	return metadata, nil
 }
 
-func (a *Aws) Identify(ch chan clouddetect.ProviderId) {
+func (a *Aws) Identify(ch chan types.ProviderId) {
 	if a.checkMetadataServerV2() {
 		ch <- identifier
 		return
@@ -140,11 +141,11 @@ func (a *Aws) Identify(ch chan clouddetect.ProviderId) {
 }
 
 func (a *Aws) checkMetadataServerV2() bool {
-	clouddetect.Logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
+	logging.Logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
 
 	metadata, err := a.getMetadataIMDSv2()
 	if err != nil {
-		clouddetect.Logger.Error(fmt.Sprintf("Error reading response: %s", err))
+		logging.Logger.Error(fmt.Sprintf("Error reading response: %s", err))
 		return false
 	}
 
@@ -152,11 +153,11 @@ func (a *Aws) checkMetadataServerV2() bool {
 }
 
 func (a *Aws) checkMetadataServerV1() bool {
-	clouddetect.Logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
+	logging.Logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
 
 	metadata, err := a.getMetadataIMDSv1()
 	if err != nil {
-		clouddetect.Logger.Error(fmt.Sprintf("Error reading response: %s", err))
+		logging.Logger.Error(fmt.Sprintf("Error reading response: %s", err))
 		return false
 	}
 
@@ -164,11 +165,11 @@ func (a *Aws) checkMetadataServerV1() bool {
 }
 
 func (a *Aws) checkProductVersionFile(file string) bool {
-	clouddetect.Logger.Debug(fmt.Sprintf("Checking %s product version file %s", identifier, file))
+	logging.Logger.Debug(fmt.Sprintf("Checking %s product version file %s", identifier, file))
 
 	content, err := os.ReadFile(file)
 	if err != nil {
-		clouddetect.Logger.Error(fmt.Sprintf("Error reading file: %s", err))
+		logging.Logger.Error(fmt.Sprintf("Error reading file: %s", err))
 		return false
 	}
 
@@ -176,11 +177,11 @@ func (a *Aws) checkProductVersionFile(file string) bool {
 }
 
 func (a *Aws) checkBiosVendorFile(file string) bool {
-	clouddetect.Logger.Debug(fmt.Sprintf("Checking %s bios vendor file %s", identifier, file))
+	logging.Logger.Debug(fmt.Sprintf("Checking %s bios vendor file %s", identifier, file))
 
 	content, err := os.ReadFile(file)
 	if err != nil {
-		clouddetect.Logger.Error(fmt.Sprintf("Error reading file: %s", err))
+		logging.Logger.Error(fmt.Sprintf("Error reading file: %s", err))
 		return false
 	}
 

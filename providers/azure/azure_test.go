@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/jarcoal/httpmock"
-	"github.com/nikhil-prabhu/clouddetect"
+	"github.com/nikhil-prabhu/clouddetect/types"
 )
 
 func TestIdentifier(t *testing.T) {
@@ -21,7 +21,7 @@ func TestIdentify(t *testing.T) {
 	tests := []struct {
 		name             string
 		setupMocks       func()
-		expectedProvider clouddetect.ProviderId
+		expectedProvider types.ProviderId
 	}{
 		{
 			name: "Identify Azure via metadata server",
@@ -41,7 +41,7 @@ func TestIdentify(t *testing.T) {
 			tt.setupMocks()
 
 			a := &Azure{}
-			ch := make(chan clouddetect.ProviderId, 1)
+			ch := make(chan types.ProviderId, 1)
 
 			go a.Identify(ch)
 

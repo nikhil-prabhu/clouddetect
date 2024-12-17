@@ -7,7 +7,8 @@ import (
 	"time"
 
 	"github.com/jarcoal/httpmock"
-	"github.com/nikhil-prabhu/clouddetect"
+	"github.com/nikhil-prabhu/clouddetect/logging"
+	"github.com/nikhil-prabhu/clouddetect/types"
 	"go.uber.org/zap"
 )
 
@@ -22,7 +23,7 @@ func TestIdentify(t *testing.T) {
 	tests := []struct {
 		name           string
 		responder      httpmock.Responder
-		expectedResult clouddetect.ProviderId
+		expectedResult types.ProviderId
 	}{
 		{
 			name:           "Metadata server reachable",
@@ -32,7 +33,7 @@ func TestIdentify(t *testing.T) {
 		{
 			name:           "Metadata server unreachable",
 			responder:      httpmock.NewErrorResponder(errors.New("error")),
-			expectedResult: clouddetect.Unknown,
+			expectedResult: types.Unknown,
 		},
 	}
 
@@ -44,7 +45,7 @@ func TestIdentify(t *testing.T) {
 			httpmock.RegisterResponder("GET", metadataURL, tt.responder)
 
 			a := &Alibaba{}
-			ch := make(chan clouddetect.ProviderId)
+			ch := make(chan types.ProviderId)
 
 			// Start Identify in a goroutine
 			go a.Identify(ch)
@@ -59,7 +60,7 @@ func TestIdentify(t *testing.T) {
 			result, ok := <-ch
 			if !ok {
 				// If the channel is closed without sending a value, handle failure case
-				result = clouddetect.Unknown
+				result = types.Unknown
 			}
 
 			if result != tt.expectedResult {
@@ -140,7 +141,7 @@ func TestCheckVendorFile(t *testing.T) {
 		defer func(name string) {
 			err := os.Remove(name)
 			if err != nil {
-				clouddetect.Logger.Error("Error removing temp file", zap.Error(err))
+				logging.Logger.Error("Error removing temp file", zap.Error(err))
 			}
 		}(tempFile) // Ensure cleanup
 
@@ -160,7 +161,7 @@ func TestCheckVendorFile(t *testing.T) {
 		defer func(name string) {
 			err := os.Remove(name)
 			if err != nil {
-				clouddetect.Logger.Error("Error removing temp file", zap.Error(err))
+				logging.Logger.Error("Error removing temp file", zap.Error(err))
 			}
 		}(tempFile) // Ensure cleanup
 

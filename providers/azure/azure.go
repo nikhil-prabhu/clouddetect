@@ -8,13 +8,14 @@ import (
 	"os"
 	"strings"
 
-	"github.com/nikhil-prabhu/clouddetect"
+	"github.com/nikhil-prabhu/clouddetect/logging"
+	"github.com/nikhil-prabhu/clouddetect/types"
 )
 
 const (
 	metadataURL string = "http://169.254.169.254/metadata/instance?api-version=2017-12-01"
 	vendorFile         = "/sys/class/dmi/id/sys_vendor"
-	identifier         = clouddetect.Azure
+	identifier         = types.Azure
 )
 
 type compute struct {
@@ -27,11 +28,11 @@ type metadataResponse struct {
 
 type Azure struct{}
 
-func (a *Azure) Identifier() clouddetect.ProviderId {
+func (a *Azure) Identifier() types.ProviderId {
 	return identifier
 }
 
-func (a *Azure) Identify(ch chan clouddetect.ProviderId) {
+func (a *Azure) Identify(ch chan types.ProviderId) {
 	if a.checkMetadataServer() {
 		ch <- identifier
 		return
@@ -44,36 +45,36 @@ func (a *Azure) Identify(ch chan clouddetect.ProviderId) {
 }
 
 func (a *Azure) checkMetadataServer() bool {
-	clouddetect.Logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
+	logging.Logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", metadataURL, nil)
 	if err != nil {
-		clouddetect.Logger.Error(fmt.Sprintf("Error creating request: %s", err))
+		logging.Logger.Error(fmt.Sprintf("Error creating request: %s", err))
 		return false
 	}
 	req.Header.Add("Metadata", "true")
 
 	resp, err := client.Do(req)
 	if err != nil {
-		clouddetect.Logger.Error(fmt.Sprintf("Error sending request: %s", err))
+		logging.Logger.Error(fmt.Sprintf("Error sending request: %s", err))
 		return false
 	}
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			clouddetect.Logger.Error(fmt.Sprintf("Error closing response body: %s", err))
+			logging.Logger.Error(fmt.Sprintf("Error closing response body: %s", err))
 		}
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		clouddetect.Logger.Error(fmt.Sprintf("Error response status code: %d", resp.StatusCode))
+		logging.Logger.Error(fmt.Sprintf("Error response status code: %d", resp.StatusCode))
 		return false
 	}
 
 	metadata := new(metadataResponse)
 	if err = json.NewDecoder(resp.Body).Decode(metadata); err != nil {
-		clouddetect.Logger.Error(fmt.Sprintf("Error decoding response: %s", err))
+		logging.Logger.Error(fmt.Sprintf("Error decoding response: %s", err))
 		return false
 	}
 
@@ -81,11 +82,11 @@ func (a *Azure) checkMetadataServer() bool {
 }
 
 func (a *Azure) checkVendorFile(file string) bool {
-	clouddetect.Logger.Debug(fmt.Sprintf("Checking %s vendor file %s", identifier, file))
+	logging.Logger.Debug(fmt.Sprintf("Checking %s vendor file %s", identifier, file))
 
 	content, err := os.ReadFile(file)
 	if err != nil {
-		clouddetect.Logger.Error(fmt.Sprintf("Error reading file: %s", err))
+		logging.Logger.Error(fmt.Sprintf("Error reading file: %s", err))
 		return false
 	}
 
