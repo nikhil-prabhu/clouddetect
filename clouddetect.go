@@ -36,10 +36,8 @@ var SupportedProviders = []types.ProviderId{
 
 // Provider represents a cloud service provider.
 type Provider interface {
-	// Identifier returns the cloud service provider identifier.
-	Identifier() types.ProviderId
-	// Identify identifies the cloud service provider.
-	Identify(chan<- types.ProviderId)
+	Identifier() types.ProviderId     // Identifier returns the cloud service provider identifier.
+	Identify(chan<- types.ProviderId) // Identify detects the cloud service provider.
 }
 
 var providers = map[types.ProviderId]Provider{

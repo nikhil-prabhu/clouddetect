@@ -20,8 +20,8 @@ const (
 )
 
 var (
-	productNames     []string = []string{"OpenStack Nova", "OpenStack Compute"}
-	chassisAssetTags []string = []string{"HUAWEICLOUD", "OpenTelekomCloud", "SAP CCloud VM", "OpenStack Nova", "OpenStack Compute"}
+	productNames     = []string{"OpenStack Nova", "OpenStack Compute"}
+	chassisAssetTags = []string{"HUAWEICLOUD", "OpenTelekomCloud", "SAP CCloud VM", "OpenStack Nova", "OpenStack Compute"}
 )
 
 type OpenStack struct{}

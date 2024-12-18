@@ -47,6 +47,7 @@ func ExampleSupportedProviders() {
 	// Output:
 	// Supported cloud service providers: [alibaba aws azure digitalocean gcp oci openstack vultr]
 }
+
 func TestDetect(t *testing.T) {
 	provider := Detect(1)
 

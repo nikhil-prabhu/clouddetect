@@ -4,22 +4,13 @@ package types
 type ProviderId string
 
 const (
-	// Unknown is an unknown cloud service provider.
-	Unknown ProviderId = "unknown"
-	// Alibaba is the Alibaba Cloud service provider.
-	Alibaba = "alibaba"
-	// Aws is the Amazon Web Services cloud service provider.
-	Aws = "aws"
-	// Azure is the Microsoft Azure cloud service provider.
-	Azure = "azure"
-	// DigitalOcean is the DigitalOcean cloud service provider.
-	DigitalOcean = "digitalocean"
-	// Gcp is the Google Cloud Platform cloud service provider.
-	Gcp = "gcp"
-	// Oci is the Oracle Cloud Infrastructure cloud service provider.
-	Oci = "oci"
-	// OpenStack is the OpenStack cloud service provider.
-	OpenStack = "openstack"
-	// Vultr is the Vultr cloud service provider.
-	Vultr = "vultr"
+	Unknown      ProviderId = "unknown"      // Unknown is the unknown cloud service provider.
+	Alibaba      ProviderId = "alibaba"      // Alibaba is the Alibaba Cloud service provider.
+	Aws          ProviderId = "aws"          // Aws is the Amazon Web Services cloud service provider.
+	Azure        ProviderId = "azure"        // Azure is the Microsoft Azure cloud service provider.
+	DigitalOcean ProviderId = "digitalocean" // DigitalOcean is the DigitalOcean cloud service provider.
+	Gcp          ProviderId = "gcp"          // Gcp is the Google Cloud Platform cloud service provider.
+	Oci          ProviderId = "oci"          // Oci is the Oracle Cloud Infrastructure cloud service provider.
+	OpenStack    ProviderId = "openstack"    // OpenStack is the OpenStack cloud service provider.
+	Vultr        ProviderId = "vultr"        // Vultr is the Vultr cloud service provider.
 )
