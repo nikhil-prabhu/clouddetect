@@ -32,7 +32,7 @@ func (a *Azure) Identifier() types.ProviderId {
 	return identifier
 }
 
-func (a *Azure) Identify(ch chan types.ProviderId) {
+func (a *Azure) Identify(ch chan<- types.ProviderId) {
 	if a.checkMetadataServer() {
 		ch <- identifier
 		return

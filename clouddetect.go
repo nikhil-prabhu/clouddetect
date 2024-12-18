@@ -30,7 +30,7 @@ type Provider interface {
 	// Identifier returns the cloud service provider identifier.
 	Identifier() types.ProviderId
 	// Identify identifies the cloud service provider.
-	Identify(chan types.ProviderId)
+	Identify(chan<- types.ProviderId)
 }
 
 var providers = map[types.ProviderId]Provider{

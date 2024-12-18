@@ -23,7 +23,7 @@ func (a *Alibaba) Identifier() types.ProviderId {
 	return identifier
 }
 
-func (a *Alibaba) Identify(ch chan types.ProviderId) {
+func (a *Alibaba) Identify(ch chan<- types.ProviderId) {
 	if a.checkMetadataServer() {
 		ch <- identifier
 		return

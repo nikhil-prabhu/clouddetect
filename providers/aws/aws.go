@@ -118,7 +118,7 @@ func (a *Aws) getMetadataIMDSv2() (*metadataResponse, error) {
 	return metadata, nil
 }
 
-func (a *Aws) Identify(ch chan types.ProviderId) {
+func (a *Aws) Identify(ch chan<- types.ProviderId) {
 	if a.checkMetadataServerV2() {
 		ch <- identifier
 		return

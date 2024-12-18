@@ -28,7 +28,7 @@ func (d *DigitalOcean) Identifier() types.ProviderId {
 	return types.DigitalOcean
 }
 
-func (d *DigitalOcean) Identify(ch chan types.ProviderId) {
+func (d *DigitalOcean) Identify(ch chan<- types.ProviderId) {
 	if d.checkMetadataServer() {
 		ch <- d.Identifier()
 		return
