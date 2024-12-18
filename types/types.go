@@ -16,4 +16,6 @@ const (
 	DigitalOcean = "digitalocean"
 	// Gcp is the Google Cloud Platform cloud service provider.
 	Gcp = "gcp"
+	// Oci is the Oracle Cloud Infrastructure cloud service provider.
+	Oci = "oci"
 )
