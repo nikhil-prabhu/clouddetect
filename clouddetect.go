@@ -1,3 +1,4 @@
+// Package clouddetect provides a simple way to detect the cloud service provider of a host.
 package clouddetect
 
 import (
