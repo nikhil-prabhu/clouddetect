@@ -12,4 +12,6 @@ const (
 	Aws = "aws"
 	// Azure is the Microsoft Azure cloud service provider.
 	Azure = "azure"
+	// DigitalOcean is the DigitalOcean cloud service provider.
+	DigitalOcean = "digitalocean"
 )

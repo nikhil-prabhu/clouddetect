@@ -10,6 +10,7 @@ import (
 	"github.com/nikhil-prabhu/clouddetect/providers/alibaba"
 	"github.com/nikhil-prabhu/clouddetect/providers/aws"
 	"github.com/nikhil-prabhu/clouddetect/providers/azure"
+	"github.com/nikhil-prabhu/clouddetect/providers/digitalocean"
 	"github.com/nikhil-prabhu/clouddetect/types"
 )
 
@@ -21,6 +22,7 @@ var SupportedProviders = []types.ProviderId{
 	types.Alibaba,
 	types.Aws,
 	types.Azure,
+	types.DigitalOcean,
 }
 
 // Provider represents a cloud service provider.
@@ -32,9 +34,10 @@ type Provider interface {
 }
 
 var providers = map[types.ProviderId]Provider{
-	types.Alibaba: &alibaba.Alibaba{},
-	types.Aws:     &aws.Aws{},
-	types.Azure:   &azure.Azure{},
+	types.Alibaba:      &alibaba.Alibaba{},
+	types.Aws:          &aws.Aws{},
+	types.Azure:        &azure.Azure{},
+	types.DigitalOcean: &digitalocean.DigitalOcean{},
 }
 
 // Detect detects the host's cloud service provider.
