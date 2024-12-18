@@ -2,6 +2,9 @@ package clouddetect
 
 import (
 	"fmt"
+	"testing"
+
+	"github.com/nikhil-prabhu/clouddetect/types"
 )
 
 func ExampleDetect_default() {
@@ -42,4 +45,20 @@ func ExampleSupportedProviders() {
 
 	// Output:
 	// Supported cloud service providers: [alibaba aws azure]
+}
+func TestDetect(t *testing.T) {
+	provider := Detect(1)
+
+	// Check if the detected provider exists in SupportedProviders
+	found := false
+	for _, p := range SupportedProviders {
+		if provider == p || provider == types.Unknown {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		t.Errorf("Expected provider to be one of %v, got %s", SupportedProviders, string(provider))
+	}
 }
