@@ -11,6 +11,7 @@ import (
 	"github.com/nikhil-prabhu/clouddetect/providers/aws"
 	"github.com/nikhil-prabhu/clouddetect/providers/azure"
 	"github.com/nikhil-prabhu/clouddetect/providers/digitalocean"
+	"github.com/nikhil-prabhu/clouddetect/providers/gcp"
 	"github.com/nikhil-prabhu/clouddetect/types"
 )
 
@@ -23,6 +24,7 @@ var SupportedProviders = []types.ProviderId{
 	types.Aws,
 	types.Azure,
 	types.DigitalOcean,
+	types.Gcp,
 }
 
 // Provider represents a cloud service provider.
@@ -38,6 +40,7 @@ var providers = map[types.ProviderId]Provider{
 	types.Aws:          &aws.Aws{},
 	types.Azure:        &azure.Azure{},
 	types.DigitalOcean: &digitalocean.DigitalOcean{},
+	types.Gcp:          &gcp.Gcp{},
 }
 
 // Detect detects the host's cloud service provider.

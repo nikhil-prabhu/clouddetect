@@ -14,4 +14,6 @@ const (
 	Azure = "azure"
 	// DigitalOcean is the DigitalOcean cloud service provider.
 	DigitalOcean = "digitalocean"
+	// Gcp is the Google Cloud Platform cloud service provider.
+	Gcp = "gcp"
 )
