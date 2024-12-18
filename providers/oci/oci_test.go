@@ -38,7 +38,9 @@ func TestIdentify(t *testing.T) {
 			name: "Identify OCI via metadata server",
 			setupMocks: func() {
 				httpmock.Activate()
-				httpmock.RegisterResponder("GET", metadataURL, httpmock.NewStringResponder(200, `{"oke_tm": "oke-instance"}`))
+				httpmock.RegisterResponder("GET", metadataURL, httpmock.NewJsonResponderOrPanic(200, metadataResponse{
+					OkeTm: "oke-instance",
+				}))
 			},
 			expectedProvider: identifier,
 		},

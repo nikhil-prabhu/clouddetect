@@ -38,7 +38,9 @@ func TestIdentify(t *testing.T) {
 			name: "Identify Vultr via metadata server",
 			setupMocks: func() {
 				httpmock.Activate()
-				httpmock.RegisterResponder("GET", metadataURL, httpmock.NewStringResponder(200, `{"instanceid": "12345"}`))
+				httpmock.RegisterResponder("GET", metadataURL, httpmock.NewJsonResponderOrPanic(200, metadataResponse{
+					InstanceID: "vultr-instance",
+				}))
 			},
 			expectedProvider: identifier,
 		},
