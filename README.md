@@ -46,19 +46,29 @@ Detect the cloud provider and print the result (with default timeout).
 package main
 
 import (
-	"fmt"
+  "fmt"
 
-	"github.com/nikhil-prabhu/clouddetect"
+  "github.com/nikhil-prabhu/clouddetect"
+  "github.com/nikhil-prabhu/clouddetect/logging"
+  "go.uber.org/zap"
 )
 
 func main() {
-	provider := clouddetect.Detect(0)
+  // Optional; only if logging is required.
+  logger, err := zap.NewProduction() // Use zap.NewDevelopment() for development mode
+  if err != nil {
+    panic(err)
+  }
+  defer logger.Sync()
+  logging.SetLogger(logger)
 
-	// When tested on AWS:
-	fmt.Println(provider) // "aws"
+  provider := clouddetect.Detect(0)
 
-	// When tested on local/non-supported cloud environment:
-	fmt.Println(provider) // "unknown"
+  // When tested on AWS:
+  fmt.Println(provider) // "aws"
+
+  // When tested on local/non-supported cloud environment:
+  fmt.Println(provider) // "unknown"
 }
 ```
 
@@ -71,9 +81,19 @@ import (
 	"fmt"
 
 	"github.com/nikhil-prabhu/clouddetect"
+	"github.com/nikhil-prabhu/clouddetect/logging"
+	"go.uber.org/zap"
 )
 
 func main() {
+	// Optional; only if logging is required.
+	logger, err := zap.NewProduction() // Use zap.NewDevelopment() for development mode
+	if err != nil {
+		panic(err)
+	}
+	defer logger.Sync()
+	logging.SetLogger(logger)
+
 	provider := clouddetect.Detect(10)
 
 	// When tested on AWS:
@@ -82,6 +102,7 @@ func main() {
 	// When tested on local/non-supported cloud environment:
 	fmt.Println(provider) // "unknown"
 }
+
 ```
 
 You can also check the list of currently supported cloud providers.
@@ -96,7 +117,6 @@ import (
 )
 
 func main() {
-
 	fmt.Println(clouddetect.SupportedProviders)
 }
 ```
