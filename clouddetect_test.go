@@ -2,6 +2,7 @@ package clouddetect
 
 import (
 	"fmt"
+	"slices"
 	"testing"
 
 	"github.com/nikhil-prabhu/clouddetect/types"
@@ -49,16 +50,7 @@ func ExampleSupportedProviders() {
 func TestDetect(t *testing.T) {
 	provider := Detect(1)
 
-	// Check if the detected provider exists in SupportedProviders
-	found := false
-	for _, p := range SupportedProviders {
-		if provider == p || provider == types.Unknown {
-			found = true
-			break
-		}
-	}
-
-	if !found {
+	if !slices.Contains(append(SupportedProviders, types.Unknown), provider) {
 		t.Errorf("Expected provider to be one of %v, got %s", SupportedProviders, string(provider))
 	}
 }
