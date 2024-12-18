@@ -120,22 +120,22 @@ func (a *Aws) getMetadataIMDSv2() (*metadataResponse, error) {
 
 func (a *Aws) Identify(ch chan<- types.ProviderId) {
 	if a.checkMetadataServerV2() {
-		ch <- identifier
+		ch <- a.Identifier()
 		return
 	}
 
 	if a.checkMetadataServerV1() {
-		ch <- identifier
+		ch <- a.Identifier()
 		return
 	}
 
 	if a.checkProductVersionFile(productVersionFile) {
-		ch <- identifier
+		ch <- a.Identifier()
 		return
 	}
 
 	if a.checkBiosVendorFile(biosVendorFile) {
-		ch <- identifier
+		ch <- a.Identifier()
 		return
 	}
 }

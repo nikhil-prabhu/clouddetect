@@ -34,12 +34,12 @@ func (a *Azure) Identifier() types.ProviderId {
 
 func (a *Azure) Identify(ch chan<- types.ProviderId) {
 	if a.checkMetadataServer() {
-		ch <- identifier
+		ch <- a.Identifier()
 		return
 	}
 
 	if a.checkVendorFile(vendorFile) {
-		ch <- identifier
+		ch <- a.Identifier()
 		return
 	}
 }

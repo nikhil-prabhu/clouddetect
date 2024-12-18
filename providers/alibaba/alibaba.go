@@ -25,12 +25,12 @@ func (a *Alibaba) Identifier() types.ProviderId {
 
 func (a *Alibaba) Identify(ch chan<- types.ProviderId) {
 	if a.checkMetadataServer() {
-		ch <- identifier
+		ch <- a.Identifier()
 		return
 	}
 
 	if a.checkVendorFile(vendorFile) {
-		ch <- identifier
+		ch <- a.Identifier()
 		return
 	}
 }

@@ -25,7 +25,7 @@ type metadataResponse struct {
 type DigitalOcean struct{}
 
 func (d *DigitalOcean) Identifier() types.ProviderId {
-	return types.DigitalOcean
+	return identifier
 }
 
 func (d *DigitalOcean) Identify(ch chan<- types.ProviderId) {
