@@ -18,4 +18,6 @@ const (
 	Gcp = "gcp"
 	// Oci is the Oracle Cloud Infrastructure cloud service provider.
 	Oci = "oci"
+	// OpenStack is the OpenStack cloud service provider.
+	OpenStack = "openstack"
 )
