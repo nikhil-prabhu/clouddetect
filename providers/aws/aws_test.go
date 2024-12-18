@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/jarcoal/httpmock"
+
 	"github.com/nikhil-prabhu/clouddetect/types"
 )
 

@@ -7,9 +7,10 @@ import (
 	"time"
 
 	"github.com/jarcoal/httpmock"
+	"go.uber.org/zap"
+
 	"github.com/nikhil-prabhu/clouddetect/logging"
 	"github.com/nikhil-prabhu/clouddetect/types"
-	"go.uber.org/zap"
 )
 
 func TestIdentifier(t *testing.T) {
