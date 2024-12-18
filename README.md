@@ -124,6 +124,14 @@ following.
 $ go fmt ./...
 ```
 
+* Code lints pass with (use `--fix` to autofix):
+
+```bash
+$ golangci-lint run -v --fix
+```
+
+**NOTE**: To install `golangci-lint`, follow the steps outlined [here](https://golangci-lint.run/welcome/install/#local-installation)
+
 * Your code contains sufficient unit tests and that all tests pass.
 
 ```bash
