@@ -23,7 +23,12 @@ port.*
 * Currently, this module supports the identification of the following providers:
     - Amazon Web Services (`aws`)
     - Microsoft Azure (`azure`)
+    - Google Cloud Platform (`gcp`)
     - Alibaba Cloud (`alibaba`)
+    - OpenStack (`openstack`)
+    - DigitalOcean (`digitalocean`)
+    - Oracle Cloud Infrastructure (`oci`)
+    - Vultr (`vultr`)
 * Fast, simple and extensible.
 * Real-time console logging using the [`zap`](https://pkg.go.dev/go.uber.org/zap) module.
 
