@@ -20,4 +20,6 @@ const (
 	Oci = "oci"
 	// OpenStack is the OpenStack cloud service provider.
 	OpenStack = "openstack"
+	// Vultr is the Vultr cloud service provider.
+	Vultr = "vultr"
 )

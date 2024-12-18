@@ -14,6 +14,7 @@ import (
 	"github.com/nikhil-prabhu/clouddetect/providers/gcp"
 	"github.com/nikhil-prabhu/clouddetect/providers/oci"
 	"github.com/nikhil-prabhu/clouddetect/providers/openstack"
+	"github.com/nikhil-prabhu/clouddetect/providers/vultr"
 	"github.com/nikhil-prabhu/clouddetect/types"
 )
 
@@ -29,6 +30,7 @@ var SupportedProviders = []types.ProviderId{
 	types.Gcp,
 	types.Oci,
 	types.OpenStack,
+	types.Vultr,
 }
 
 // Provider represents a cloud service provider.
@@ -47,6 +49,7 @@ var providers = map[types.ProviderId]Provider{
 	types.Gcp:          &gcp.Gcp{},
 	types.Oci:          &oci.Oci{},
 	types.OpenStack:    &openstack.OpenStack{},
+	types.Vultr:        &vultr.Vultr{},
 }
 
 // Detect detects the host's cloud service provider.
