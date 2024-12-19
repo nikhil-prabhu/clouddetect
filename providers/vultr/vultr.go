@@ -1,6 +1,7 @@
 package vultr
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -28,8 +29,8 @@ func (v *Vultr) Identifier() types.ProviderId {
 	return identifier
 }
 
-func (v *Vultr) Identify(ch chan<- types.ProviderId) {
-	if v.checkMetadataServer() {
+func (v *Vultr) Identify(ctx context.Context, ch chan<- types.ProviderId) {
+	if v.checkMetadataServer(ctx) {
 		ch <- v.Identifier()
 		return
 	}
@@ -40,10 +41,17 @@ func (v *Vultr) Identify(ch chan<- types.ProviderId) {
 	}
 }
 
-func (v *Vultr) checkMetadataServer() bool {
+func (v *Vultr) checkMetadataServer(ctx context.Context) bool {
 	logging.Logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
 
-	resp, err := http.Get(metadataURL)
+	client := &http.Client{}
+	req, err := http.NewRequestWithContext(ctx, "GET", metadataURL, nil)
+	if err != nil {
+		logging.Logger.Error(fmt.Sprintf("Error creating request: %s", err))
+		return false
+	}
+
+	resp, err := client.Do(req)
 	if err != nil {
 		logging.Logger.Error(fmt.Sprintf("Error reading response: %s", err))
 		return false

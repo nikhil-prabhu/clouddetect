@@ -1,6 +1,7 @@
 package gcp
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"testing"
@@ -53,7 +54,7 @@ func TestIdentify(t *testing.T) {
 			g := &Gcp{}
 			ch := make(chan types.ProviderId, 1)
 
-			go g.Identify(ch)
+			go g.Identify(context.Background(), ch)
 
 			select {
 			case result := <-ch:
@@ -93,7 +94,7 @@ func TestCheckMetadataServer(t *testing.T) {
 			httpmock.RegisterResponder("GET", metadataURL, httpmock.NewStringResponder(tt.responseStatus, ""))
 
 			g := &Gcp{}
-			result := g.checkMetadataServer()
+			result := g.checkMetadataServer(context.Background())
 
 			if result != tt.expectedResult {
 				t.Errorf("checkMetadataServer() = %v; want %v", result, tt.expectedResult)

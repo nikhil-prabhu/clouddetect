@@ -1,6 +1,7 @@
 package gcp
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -23,8 +24,8 @@ func (g *Gcp) Identifier() types.ProviderId {
 	return identifier
 }
 
-func (g *Gcp) Identify(ch chan<- types.ProviderId) {
-	if g.checkMetadataServer() {
+func (g *Gcp) Identify(ctx context.Context, ch chan<- types.ProviderId) {
+	if g.checkMetadataServer(ctx) {
 		ch <- g.Identifier()
 		return
 	}
@@ -35,11 +36,11 @@ func (g *Gcp) Identify(ch chan<- types.ProviderId) {
 	}
 }
 
-func (g *Gcp) checkMetadataServer() bool {
+func (g *Gcp) checkMetadataServer(ctx context.Context) bool {
 	logging.Logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
 
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", metadataURL, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", metadataURL, nil)
 	if err != nil {
 		logging.Logger.Error(fmt.Sprintf("Error creating request: %s", err))
 		return false

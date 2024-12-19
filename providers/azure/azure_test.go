@@ -1,6 +1,7 @@
 package azure
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"testing"
@@ -44,7 +45,7 @@ func TestIdentify(t *testing.T) {
 			a := &Azure{}
 			ch := make(chan types.ProviderId, 1)
 
-			go a.Identify(ch)
+			go a.Identify(context.Background(), ch)
 
 			select {
 			case result := <-ch:
@@ -93,7 +94,7 @@ func TestCheckMetadataServer(t *testing.T) {
 			httpmock.RegisterResponder("GET", metadataURL, httpmock.NewStringResponder(tt.responseStatus, tt.responseBody))
 
 			a := &Azure{}
-			result := a.checkMetadataServer()
+			result := a.checkMetadataServer(context.Background())
 
 			if result != tt.expectedResult {
 				t.Errorf("checkMetadataServer() = %v; want %v", result, tt.expectedResult)

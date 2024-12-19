@@ -1,6 +1,7 @@
 package azure
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -32,8 +33,8 @@ func (a *Azure) Identifier() types.ProviderId {
 	return identifier
 }
 
-func (a *Azure) Identify(ch chan<- types.ProviderId) {
-	if a.checkMetadataServer() {
+func (a *Azure) Identify(ctx context.Context, ch chan<- types.ProviderId) {
+	if a.checkMetadataServer(ctx) {
 		ch <- a.Identifier()
 		return
 	}
@@ -44,11 +45,11 @@ func (a *Azure) Identify(ch chan<- types.ProviderId) {
 	}
 }
 
-func (a *Azure) checkMetadataServer() bool {
+func (a *Azure) checkMetadataServer(ctx context.Context) bool {
 	logging.Logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
 
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", metadataURL, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", metadataURL, nil)
 	if err != nil {
 		logging.Logger.Error(fmt.Sprintf("Error creating request: %s", err))
 		return false

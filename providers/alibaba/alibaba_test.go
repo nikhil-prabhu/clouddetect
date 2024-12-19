@@ -1,6 +1,7 @@
 package alibaba
 
 import (
+	"context"
 	"errors"
 	"os"
 	"testing"
@@ -49,7 +50,7 @@ func TestIdentify(t *testing.T) {
 			ch := make(chan types.ProviderId)
 
 			// Start Identify in a goroutine
-			go a.Identify(ch)
+			go a.Identify(context.Background(), ch)
 
 			// Close the channel after a timeout to simulate the failure case
 			go func() {
@@ -101,7 +102,7 @@ func TestCheckMetadataServer(t *testing.T) {
 			httpmock.RegisterResponder("GET", metadataURL, httpmock.NewStringResponder(tt.statusCode, tt.response))
 
 			a := &Alibaba{}
-			result := a.checkMetadataServer()
+			result := a.checkMetadataServer(context.Background())
 
 			if result != tt.expectPass {
 				t.Errorf("checkMetadataServer() = %v; want %v", result, tt.expectPass)

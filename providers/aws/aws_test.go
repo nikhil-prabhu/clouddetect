@@ -1,6 +1,7 @@
 package aws
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"testing"
@@ -58,7 +59,7 @@ func TestIdentify(t *testing.T) {
 			a := &Aws{}
 			ch := make(chan types.ProviderId)
 
-			go a.Identify(ch)
+			go a.Identify(context.Background(), ch)
 
 			select {
 			case result := <-ch:
@@ -83,7 +84,7 @@ func TestGetMetadataIMDSv1(t *testing.T) {
 	httpmock.RegisterResponder("GET", metadataURL, httpmock.NewJsonResponderOrPanic(200, mockResponse))
 
 	a := &Aws{}
-	metadata, err := a.getMetadataIMDSv1()
+	metadata, err := a.getMetadataIMDSv1(context.Background())
 
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
@@ -113,7 +114,7 @@ func TestGetMetadataIMDSv2(t *testing.T) {
 	)
 
 	a := &Aws{}
-	metadata, err := a.getMetadataIMDSv2()
+	metadata, err := a.getMetadataIMDSv2(context.Background())
 
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
@@ -134,7 +135,7 @@ func TestCheckMetadataServerV1(t *testing.T) {
 	}))
 
 	a := &Aws{}
-	if !a.checkMetadataServerV1() {
+	if !a.checkMetadataServerV1(context.Background()) {
 		t.Error("Expected checkMetadataServerV1 to return true")
 	}
 }
@@ -151,7 +152,7 @@ func TestCheckMetadataServerV2(t *testing.T) {
 		}))
 
 	a := &Aws{}
-	if !a.checkMetadataServerV2() {
+	if !a.checkMetadataServerV2(context.Background()) {
 		t.Error("Expected checkMetadataServerV2 to return true")
 	}
 }

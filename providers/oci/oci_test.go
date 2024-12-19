@@ -1,6 +1,7 @@
 package oci
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"testing"
@@ -55,7 +56,7 @@ func TestIdentify(t *testing.T) {
 			o := &Oci{}
 			ch := make(chan types.ProviderId, 1)
 
-			go o.Identify(ch)
+			go o.Identify(context.Background(), ch)
 
 			select {
 			case result := <-ch:
@@ -106,7 +107,7 @@ func TestCheckMetadataServer(t *testing.T) {
 			httpmock.RegisterResponder("GET", metadataURL, httpmock.NewJsonResponderOrPanic(tt.responseStatus, tt.responseBody))
 
 			o := &Oci{}
-			result := o.checkMetadataServer()
+			result := o.checkMetadataServer(context.Background())
 
 			if result != tt.expectedResult {
 				t.Errorf("checkMetadataServer() = %v; want %v", result, tt.expectedResult)

@@ -1,6 +1,7 @@
 package oci
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -28,8 +29,8 @@ func (o *Oci) Identifier() types.ProviderId {
 	return identifier
 }
 
-func (o *Oci) Identify(ch chan<- types.ProviderId) {
-	if o.checkMetadataServer() {
+func (o *Oci) Identify(ctx context.Context, ch chan<- types.ProviderId) {
+	if o.checkMetadataServer(ctx) {
 		ch <- o.Identifier()
 		return
 	}
@@ -40,10 +41,17 @@ func (o *Oci) Identify(ch chan<- types.ProviderId) {
 	}
 }
 
-func (o *Oci) checkMetadataServer() bool {
+func (o *Oci) checkMetadataServer(ctx context.Context) bool {
 	logging.Logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
 
-	resp, err := http.Get(metadataURL)
+	client := &http.Client{}
+	req, err := http.NewRequestWithContext(ctx, "GET", metadataURL, nil)
+	if err != nil {
+		logging.Logger.Error(fmt.Sprintf("Error creating request: %s", err))
+		return false
+	}
+
+	resp, err := client.Do(req)
 	if err != nil {
 		logging.Logger.Error(fmt.Sprintf("Error reading response: %s", err))
 		return false

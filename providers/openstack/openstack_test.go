@@ -1,6 +1,7 @@
 package openstack
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"testing"
@@ -52,7 +53,7 @@ func TestIdentify(t *testing.T) {
 			o := &OpenStack{}
 			ch := make(chan types.ProviderId, 1)
 
-			go o.Identify(ch)
+			go o.Identify(context.Background(), ch)
 
 			select {
 			case result := <-ch:
@@ -92,7 +93,7 @@ func TestCheckMetadataServer(t *testing.T) {
 			httpmock.RegisterResponder("GET", metadataURL, httpmock.NewStringResponder(tt.responseStatus, ""))
 
 			o := &OpenStack{}
-			result := o.checkMetadataServer()
+			result := o.checkMetadataServer(context.Background())
 
 			if result != tt.expectedResult {
 				t.Errorf("checkMetadataServer() = %v; want %v", result, tt.expectedResult)

@@ -1,6 +1,7 @@
 package vultr
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"testing"
@@ -54,7 +55,7 @@ func TestIdentify(t *testing.T) {
 			v := &Vultr{}
 			ch := make(chan types.ProviderId, 1)
 
-			go v.Identify(ch)
+			go v.Identify(context.Background(), ch)
 
 			select {
 			case result := <-ch:
@@ -103,7 +104,7 @@ func TestCheckMetadataServer(t *testing.T) {
 			httpmock.RegisterResponder("GET", metadataURL, httpmock.NewJsonResponderOrPanic(tt.responseStatus, tt.responseBody))
 
 			v := &Vultr{}
-			result := v.checkMetadataServer()
+			result := v.checkMetadataServer(context.Background())
 
 			if result != tt.expectedResult {
 				t.Errorf("checkMetadataServer() = %v; want %v", result, tt.expectedResult)

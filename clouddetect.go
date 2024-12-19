@@ -36,8 +36,8 @@ var SupportedProviders = []types.ProviderId{
 
 // provider represents a cloud service provider.
 type provider interface {
-	Identifier() types.ProviderId     // Identifier returns the cloud service provider identifier.
-	Identify(chan<- types.ProviderId) // Identify detects the cloud service provider.
+	Identifier() types.ProviderId                      // Identifier returns the cloud service provider identifier.
+	Identify(context.Context, chan<- types.ProviderId) // Identify detects the cloud service provider.
 }
 
 var providers = map[types.ProviderId]provider{
@@ -70,7 +70,7 @@ func Detect(timeout uint64) types.ProviderId {
 		go func(name types.ProviderId, provider provider) {
 			logging.Logger.Debug(fmt.Sprintf("Starting detection routine for %s", name))
 			defer wg.Done()
-			provider.Identify(ch)
+			provider.Identify(ctx, ch)
 		}(name, p)
 	}
 

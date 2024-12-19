@@ -1,6 +1,7 @@
 package aws
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -31,9 +32,9 @@ func (a *Aws) Identifier() types.ProviderId {
 	return identifier
 }
 
-func (a *Aws) getMetadataIMDSv1() (*metadataResponse, error) {
+func (a *Aws) getMetadataIMDSv1(ctx context.Context) (*metadataResponse, error) {
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", metadataURL, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", metadataURL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -61,9 +62,9 @@ func (a *Aws) getMetadataIMDSv1() (*metadataResponse, error) {
 	return metadata, nil
 }
 
-func (a *Aws) getMetadataIMDSv2() (*metadataResponse, error) {
+func (a *Aws) getMetadataIMDSv2(ctx context.Context) (*metadataResponse, error) {
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", tokenURL, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", tokenURL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +90,7 @@ func (a *Aws) getMetadataIMDSv2() (*metadataResponse, error) {
 		return nil, err
 	}
 
-	req, err = http.NewRequest("GET", metadataURL, nil)
+	req, err = http.NewRequestWithContext(ctx, "GET", metadataURL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -118,13 +119,13 @@ func (a *Aws) getMetadataIMDSv2() (*metadataResponse, error) {
 	return metadata, nil
 }
 
-func (a *Aws) Identify(ch chan<- types.ProviderId) {
-	if a.checkMetadataServerV2() {
+func (a *Aws) Identify(ctx context.Context, ch chan<- types.ProviderId) {
+	if a.checkMetadataServerV2(ctx) {
 		ch <- a.Identifier()
 		return
 	}
 
-	if a.checkMetadataServerV1() {
+	if a.checkMetadataServerV1(ctx) {
 		ch <- a.Identifier()
 		return
 	}
@@ -140,10 +141,10 @@ func (a *Aws) Identify(ch chan<- types.ProviderId) {
 	}
 }
 
-func (a *Aws) checkMetadataServerV2() bool {
+func (a *Aws) checkMetadataServerV2(ctx context.Context) bool {
 	logging.Logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
 
-	metadata, err := a.getMetadataIMDSv2()
+	metadata, err := a.getMetadataIMDSv2(ctx)
 	if err != nil {
 		logging.Logger.Error(fmt.Sprintf("Error reading response: %s", err))
 		return false
@@ -152,10 +153,10 @@ func (a *Aws) checkMetadataServerV2() bool {
 	return strings.HasPrefix(metadata.ImageId, "ami-") && strings.HasPrefix(metadata.InstanceId, "i-")
 }
 
-func (a *Aws) checkMetadataServerV1() bool {
+func (a *Aws) checkMetadataServerV1(ctx context.Context) bool {
 	logging.Logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
 
-	metadata, err := a.getMetadataIMDSv1()
+	metadata, err := a.getMetadataIMDSv1(ctx)
 	if err != nil {
 		logging.Logger.Error(fmt.Sprintf("Error reading response: %s", err))
 		return false

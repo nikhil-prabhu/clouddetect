@@ -1,6 +1,7 @@
 package alibaba
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -23,8 +24,8 @@ func (a *Alibaba) Identifier() types.ProviderId {
 	return identifier
 }
 
-func (a *Alibaba) Identify(ch chan<- types.ProviderId) {
-	if a.checkMetadataServer() {
+func (a *Alibaba) Identify(ctx context.Context, ch chan<- types.ProviderId) {
+	if a.checkMetadataServer(ctx) {
 		ch <- a.Identifier()
 		return
 	}
@@ -35,10 +36,17 @@ func (a *Alibaba) Identify(ch chan<- types.ProviderId) {
 	}
 }
 
-func (a *Alibaba) checkMetadataServer() bool {
+func (a *Alibaba) checkMetadataServer(ctx context.Context) bool {
 	logging.Logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
 
-	resp, err := http.Get(metadataURL)
+	client := &http.Client{}
+	req, err := http.NewRequestWithContext(ctx, "GET", metadataURL, nil)
+	if err != nil {
+		logging.Logger.Error(fmt.Sprintf("Error creating request: %s", err))
+		return false
+	}
+
+	resp, err := client.Do(req)
 	if err != nil {
 		logging.Logger.Error(fmt.Sprintf("Error reading response: %s", err))
 		return false
