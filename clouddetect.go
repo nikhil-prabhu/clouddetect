@@ -34,13 +34,16 @@ var SupportedProviders = []types.ProviderId{
 	types.Vultr,
 }
 
-// provider represents a cloud service provider.
-type provider interface {
+// Provider represents a cloud service provider.
+//
+// This interface is not guaranteed to remain stable/public and may change or be removed in the future.
+// Do not depend on this interface outside of this package.
+type Provider interface {
 	Identifier() types.ProviderId                      // Identifier returns the cloud service provider identifier.
 	Identify(context.Context, chan<- types.ProviderId) // Identify detects the cloud service provider.
 }
 
-var providers = map[types.ProviderId]provider{
+var providers = map[types.ProviderId]Provider{
 	types.Alibaba:      &alibaba.Alibaba{},
 	types.Aws:          &aws.Aws{},
 	types.Azure:        &azure.Azure{},
@@ -65,13 +68,13 @@ func Detect(timeout uint64) types.ProviderId {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(t)*time.Second)
 	defer cancel()
 
-	for name, p := range providers {
+	for name, provider := range providers {
 		wg.Add(1)
-		go func(name types.ProviderId, provider provider) {
+		go func(name types.ProviderId, provider Provider) {
 			logging.Logger.Debug(fmt.Sprintf("Starting detection routine for %s", name))
 			defer wg.Done()
 			provider.Identify(ctx, ch)
-		}(name, p)
+		}(name, provider)
 	}
 
 	go func() {
