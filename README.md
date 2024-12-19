@@ -5,6 +5,7 @@
 [![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![CI](https://github.com/nikhil-prabhu/clouddetect/actions/workflows/ci.yml/badge.svg)](https://github.com/nikhil-prabhu/clouddetect/actions)
 [![CD](https://github.com/nikhil-prabhu/clouddetect/actions/workflows/cd.yml/badge.svg)](https://github.com/nikhil-prabhu/clouddetect/actions)
+[![Go Report Card](https://goreportcard.com/badge/github.com/nikhil-prabhu/clouddetect)](https://goreportcard.com/report/github.com/nikhil-prabhu/clouddetect)
 
 A Go library to detect the cloud service provider of a host.
 
