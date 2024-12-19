@@ -9,34 +9,34 @@ import (
 )
 
 func ExampleDetect_default() {
-	// Detect the cloud service provider with default timeout.
+	// Detect the cloud service p with default timeout.
 	_ = Detect(0)
 
 	// Hardcoded values for example purposes (output may vary in real use cases)
-	provider := "aws"
+	p := "aws"
 	elapsed := DefaultDetectionTimeout
 
-	fmt.Println("Detected cloud service provider:", provider)
+	fmt.Println("Detected cloud service p:", p)
 	fmt.Println("Detection took", elapsed, "seconds")
 
 	// Output:
-	// Detected cloud service provider: aws
+	// Detected cloud service p: aws
 	// Detection took 5 seconds
 }
 
 func ExampleDetect_custom() {
-	// Detect the cloud service provider with custom timeout.
+	// Detect the cloud service p with custom timeout.
 	_ = Detect(1)
 
 	// Hardcoded values for example purposes (output may vary in real use cases)
-	provider := "aws"
+	p := "aws"
 	elapsed := 1
 
-	fmt.Println("Detected cloud service provider:", provider)
+	fmt.Println("Detected cloud service p:", p)
 	fmt.Println("Detection took", elapsed, "second")
 
 	// Output:
-	// Detected cloud service provider: aws
+	// Detected cloud service p: aws
 	// Detection took 1 second
 }
 
@@ -49,9 +49,9 @@ func ExampleSupportedProviders() {
 }
 
 func TestDetect(t *testing.T) {
-	provider := Detect(1)
+	p := Detect(1)
 
-	if !slices.Contains(append(SupportedProviders, types.Unknown), provider) {
-		t.Errorf("Expected provider to be one of %v, got %s", SupportedProviders, string(provider))
+	if !slices.Contains(append(SupportedProviders, types.Unknown), p) {
+		t.Errorf("Expected p to be one of %v, got %s", SupportedProviders, string(p))
 	}
 }
