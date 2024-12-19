@@ -44,9 +44,9 @@ func (a *Aws) getMetadataIMDSv1(ctx context.Context) (*metadataResponse, error) 
 		return nil, err
 	}
 	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			logging.Logger.Error(fmt.Sprintf("Error closing response body: %s", err))
+		closeErr := Body.Close()
+		if closeErr != nil {
+			logging.Logger.Error(fmt.Sprintf("Error closing response body: %s", closeErr))
 		}
 	}(resp.Body)
 
@@ -55,8 +55,8 @@ func (a *Aws) getMetadataIMDSv1(ctx context.Context) (*metadataResponse, error) 
 	}
 
 	metadata := new(metadataResponse)
-	if err = json.NewDecoder(resp.Body).Decode(metadata); err != nil {
-		return nil, err
+	if decodeErr := json.NewDecoder(resp.Body).Decode(metadata); decodeErr != nil {
+		return nil, decodeErr
 	}
 
 	return metadata, nil
@@ -75,9 +75,9 @@ func (a *Aws) getMetadataIMDSv2(ctx context.Context) (*metadataResponse, error) 
 		return nil, err
 	}
 	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			logging.Logger.Error(fmt.Sprintf("Error closing response body: %s", err))
+		closeErr := Body.Close()
+		if closeErr != nil {
+			logging.Logger.Error(fmt.Sprintf("Error closing response body: %s", closeErr))
 		}
 	}(resp.Body)
 
@@ -101,9 +101,9 @@ func (a *Aws) getMetadataIMDSv2(ctx context.Context) (*metadataResponse, error) 
 		return nil, err
 	}
 	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			logging.Logger.Error(fmt.Sprintf("Error closing response body: %s", err))
+		closeErr := Body.Close()
+		if closeErr != nil {
+			logging.Logger.Error(fmt.Sprintf("Error closing response body: %s", closeErr))
 		}
 	}(resp.Body)
 
@@ -112,8 +112,8 @@ func (a *Aws) getMetadataIMDSv2(ctx context.Context) (*metadataResponse, error) 
 	}
 
 	metadata := new(metadataResponse)
-	if err = json.NewDecoder(resp.Body).Decode(metadata); err != nil {
-		return nil, err
+	if decodeErr := json.NewDecoder(resp.Body).Decode(metadata); decodeErr != nil {
+		return nil, decodeErr
 	}
 
 	return metadata, nil

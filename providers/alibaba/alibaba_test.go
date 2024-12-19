@@ -120,13 +120,13 @@ func createTempFile(t *testing.T, content string) string {
 	}
 
 	// Write content to the temp file
-	if _, err := tmpFile.WriteString(content); err != nil {
-		t.Fatalf("Failed to write to temp file: %v", err)
+	if _, writeErr := tmpFile.WriteString(content); writeErr != nil {
+		t.Fatalf("Failed to write to temp file: %v", writeErr)
 	}
 
 	// Close the file to flush the content
-	if err := tmpFile.Close(); err != nil {
-		t.Fatalf("Failed to close temp file: %v", err)
+	if closeErr := tmpFile.Close(); closeErr != nil {
+		t.Fatalf("Failed to close temp file: %v", closeErr)
 	}
 
 	return tmpFile.Name() // Return the file name (path)

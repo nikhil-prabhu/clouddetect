@@ -52,9 +52,9 @@ func (a *Alibaba) checkMetadataServer(ctx context.Context) bool {
 		return false
 	}
 	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			logging.Logger.Error(fmt.Sprintf("Error closing response body: %s", err))
+		closeErr := Body.Close()
+		if closeErr != nil {
+			logging.Logger.Error(fmt.Sprintf("Error closing response body: %s", closeErr))
 		}
 	}(resp.Body)
 
