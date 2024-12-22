@@ -56,10 +56,7 @@ import (
 
 func main() {
   // Optional; only if logging is required.
-  logger, err := zap.NewProduction() // Use zap.NewDevelopment() for development mode
-  if err != nil {
-    panic(err)
-  }
+  logger := zap.Must(zap.NewProduction()) // Use zap.NewDevelopment() for development mode
   defer logger.Sync()
   logging.SetLogger(logger)
 
@@ -88,10 +85,7 @@ import (
 
 func main() {
 	// Optional; only if logging is required.
-	logger, err := zap.NewProduction() // Use zap.NewDevelopment() for development mode
-	if err != nil {
-		panic(err)
-	}
+	logger := zap.Must(zap.NewProduction()) // Use zap.NewDevelopment() for development mode
 	defer logger.Sync()
 	logging.SetLogger(logger)
 
