@@ -5,6 +5,7 @@ type ProviderId string
 
 const (
 	Unknown      ProviderId = "unknown"      // Unknown is the unknown cloud service provider.
+	Akamai       ProviderId = "akamai"       // Akamai is the Akamai cloud service provider.
 	Alibaba      ProviderId = "alibaba"      // Alibaba is the Alibaba Cloud service provider.
 	Aws          ProviderId = "aws"          // Aws is the Amazon Web Services cloud service provider.
 	Azure        ProviderId = "azure"        // Azure is the Microsoft Azure cloud service provider.

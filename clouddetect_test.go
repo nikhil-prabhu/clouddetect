@@ -45,7 +45,7 @@ func ExampleSupportedProviders() {
 	fmt.Println("Supported cloud service providers:", SupportedProviders)
 
 	// Output:
-	// Supported cloud service providers: [alibaba aws azure digitalocean gcp oci openstack vultr]
+	// Supported cloud service providers: [akamai alibaba aws azure digitalocean gcp oci openstack vultr]
 }
 
 func TestDetect(t *testing.T) {

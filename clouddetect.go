@@ -24,6 +24,7 @@ const DefaultDetectionTimeout = 5 // seconds
 
 // SupportedProviders is a list of supported cloud service providers.
 var SupportedProviders = []types.ProviderId{
+	types.Akamai,
 	types.Alibaba,
 	types.Aws,
 	types.Azure,
