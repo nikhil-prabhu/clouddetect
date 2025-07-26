@@ -1,3 +1,5 @@
+// Starting from v1.2.0, this module is dual-licensed under GPL-3.0 or MIT.
+
 module github.com/nikhil-prabhu/clouddetect
 
 go 1.23.4
