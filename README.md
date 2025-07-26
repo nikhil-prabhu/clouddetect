@@ -19,6 +19,13 @@ determine the cloud provider of a host.
 *While this library is structured similarly to the Rust crate, it follows Go conventions and idioms and is not a direct
 port.*
 
+## License
+
+This module is dual-licensed under the GPL 3.0 (see `LICENSE-GPL-3.0`) or MIT (see `LICENSE-MIT`).
+You can choose between them if you use this module.
+
+`SPDX-License-Identifier: GPL-3.0 OR MIT`
+
 ## Features
 
 * Currently, this module supports the identification of the following providers:
