@@ -3,6 +3,7 @@
 ![maintenance-status](https://img.shields.io/badge/maintenance-actively--developed-brightgreen.svg)
 [![Go Reference](https://pkg.go.dev/badge/github.com/nikhil-prabhu/clouddetect.svg)](https://pkg.go.dev/github.com/nikhil-prabhu/clouddetect)
 [![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/license/mit)
 [![CI](https://github.com/nikhil-prabhu/clouddetect/actions/workflows/ci.yml/badge.svg)](https://github.com/nikhil-prabhu/clouddetect/actions)
 [![CD](https://github.com/nikhil-prabhu/clouddetect/actions/workflows/cd.yml/badge.svg)](https://github.com/nikhil-prabhu/clouddetect/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/nikhil-prabhu/clouddetect)](https://goreportcard.com/report/github.com/nikhil-prabhu/clouddetect)
