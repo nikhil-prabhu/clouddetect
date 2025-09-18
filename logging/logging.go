@@ -1,3 +1,4 @@
+// Package logging provides a simple logging utility using Uber's zap library.
 package logging
 
 import "go.uber.org/zap"

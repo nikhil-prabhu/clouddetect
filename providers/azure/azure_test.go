@@ -29,7 +29,7 @@ func TestIdentify(t *testing.T) {
 			name: "Identify Azure via metadata server",
 			setupMocks: func() {
 				httpmock.RegisterResponder("GET", metadataURL, httpmock.NewJsonResponderOrPanic(200, metadataResponse{
-					Compute: compute{VmID: "vm-12345"},
+					Compute: compute{VMID: "vm-12345"},
 				}))
 			},
 			expectedProvider: identifier,

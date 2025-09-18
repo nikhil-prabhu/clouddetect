@@ -1,3 +1,4 @@
+// Package aws implements detection for Amazon Web Services (AWS) cloud service provider.
 package aws
 
 import (
@@ -22,8 +23,8 @@ const (
 )
 
 type metadataResponse struct {
-	ImageId    string `json:"imageId"`
-	InstanceId string `json:"instanceId"`
+	ImageID    string `json:"imageId"`
+	InstanceID string `json:"instanceId"`
 }
 
 type Aws struct{}
@@ -150,7 +151,7 @@ func (a *Aws) checkMetadataServerV2(ctx context.Context) bool {
 		return false
 	}
 
-	return strings.HasPrefix(metadata.ImageId, "ami-") && strings.HasPrefix(metadata.InstanceId, "i-")
+	return strings.HasPrefix(metadata.ImageID, "ami-") && strings.HasPrefix(metadata.InstanceID, "i-")
 }
 
 func (a *Aws) checkMetadataServerV1(ctx context.Context) bool {
@@ -162,7 +163,7 @@ func (a *Aws) checkMetadataServerV1(ctx context.Context) bool {
 		return false
 	}
 
-	return strings.HasPrefix(metadata.ImageId, "ami-") && strings.HasPrefix(metadata.InstanceId, "i-")
+	return strings.HasPrefix(metadata.ImageID, "ami-") && strings.HasPrefix(metadata.InstanceID, "i-")
 }
 
 func (a *Aws) checkProductVersionFile(file string) bool {

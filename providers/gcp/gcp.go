@@ -1,3 +1,4 @@
+// Package gcp implements the GCP cloud provider detection.
 package gcp
 
 import (

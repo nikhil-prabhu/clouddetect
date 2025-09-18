@@ -1,3 +1,4 @@
+// Package vultr implements the Vultr cloud provider detection.
 package vultr
 
 import (

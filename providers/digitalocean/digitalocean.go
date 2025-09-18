@@ -1,3 +1,4 @@
+// Package digitalocean implements the DigitalOcean cloud provider detection.
 package digitalocean
 
 import (

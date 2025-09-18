@@ -31,8 +31,8 @@ func TestIdentify(t *testing.T) {
 				httpmock.RegisterResponder("GET", tokenURL, httpmock.NewStringResponder(200, "test-token"))
 				httpmock.RegisterResponder("GET", metadataURL,
 					httpmock.NewJsonResponderOrPanic(200, metadataResponse{
-						ImageId:    "ami-123",
-						InstanceId: "i-123",
+						ImageID:    "ami-123",
+						InstanceID: "i-123",
 					}))
 			},
 			expectedResult: identifier,
@@ -42,8 +42,8 @@ func TestIdentify(t *testing.T) {
 			setupMock: func() {
 				httpmock.RegisterResponder("GET", metadataURL,
 					httpmock.NewJsonResponderOrPanic(200, metadataResponse{
-						ImageId:    "ami-123",
-						InstanceId: "i-123",
+						ImageID:    "ami-123",
+						InstanceID: "i-123",
 					}))
 			},
 			expectedResult: identifier,
@@ -78,19 +78,18 @@ func TestGetMetadataIMDSv1(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	mockResponse := metadataResponse{
-		ImageId:    "ami-12345678",
-		InstanceId: "i-0123456789abcdef0",
+		ImageID:    "ami-12345678",
+		InstanceID: "i-0123456789abcdef0",
 	}
 	httpmock.RegisterResponder("GET", metadataURL, httpmock.NewJsonResponderOrPanic(200, mockResponse))
 
 	a := &Aws{}
 	metadata, err := a.getMetadataIMDSv1(context.Background())
-
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
 
-	if metadata.ImageId != "ami-12345678" || metadata.InstanceId != "i-0123456789abcdef0" {
+	if metadata.ImageID != "ami-12345678" || metadata.InstanceID != "i-0123456789abcdef0" {
 		t.Errorf("Incorrect metadata: %v", metadata)
 	}
 }
@@ -107,20 +106,19 @@ func TestGetMetadataIMDSv2(t *testing.T) {
 				return httpmock.NewStringResponse(403, ""), nil
 			}
 			return httpmock.NewJsonResponse(200, metadataResponse{
-				ImageId:    "ami-12345678",
-				InstanceId: "i-0123456789abcdef0",
+				ImageID:    "ami-12345678",
+				InstanceID: "i-0123456789abcdef0",
 			})
 		},
 	)
 
 	a := &Aws{}
 	metadata, err := a.getMetadataIMDSv2(context.Background())
-
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
 
-	if metadata.ImageId != "ami-12345678" || metadata.InstanceId != "i-0123456789abcdef0" {
+	if metadata.ImageID != "ami-12345678" || metadata.InstanceID != "i-0123456789abcdef0" {
 		t.Errorf("Incorrect metadata: %v", metadata)
 	}
 }
@@ -130,8 +128,8 @@ func TestCheckMetadataServerV1(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder("GET", metadataURL, httpmock.NewJsonResponderOrPanic(200, metadataResponse{
-		ImageId:    "ami-12345678",
-		InstanceId: "i-0123456789abcdef0",
+		ImageID:    "ami-12345678",
+		InstanceID: "i-0123456789abcdef0",
 	}))
 
 	a := &Aws{}
@@ -147,8 +145,8 @@ func TestCheckMetadataServerV2(t *testing.T) {
 	httpmock.RegisterResponder("GET", tokenURL, httpmock.NewStringResponder(200, "test-token"))
 	httpmock.RegisterResponder("GET", metadataURL,
 		httpmock.NewJsonResponderOrPanic(200, metadataResponse{
-			ImageId:    "ami-12345678",
-			InstanceId: "i-0123456789abcdef0",
+			ImageID:    "ami-12345678",
+			InstanceID: "i-0123456789abcdef0",
 		}))
 
 	a := &Aws{}

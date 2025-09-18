@@ -1,3 +1,4 @@
+// Package azure implements detection for Microsoft Azure cloud service provider.
 package azure
 
 import (
@@ -20,7 +21,7 @@ const (
 )
 
 type compute struct {
-	VmID string `json:"vmId"`
+	VMID string `json:"vmId"`
 }
 
 type metadataResponse struct {
@@ -79,7 +80,7 @@ func (a *Azure) checkMetadataServer(ctx context.Context) bool {
 		return false
 	}
 
-	return len(metadata.Compute.VmID) > 0
+	return len(metadata.Compute.VMID) > 0
 }
 
 func (a *Azure) checkVendorFile(file string) bool {

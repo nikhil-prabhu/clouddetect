@@ -1,3 +1,4 @@
+// Package oci implements the Oracle Cloud Infrastructure (OCI) provider detection.
 package oci
 
 import (

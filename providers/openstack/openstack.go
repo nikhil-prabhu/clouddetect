@@ -1,3 +1,4 @@
+// Package openstack implements the OpenStack cloud provider detection.
 package openstack
 
 import (
