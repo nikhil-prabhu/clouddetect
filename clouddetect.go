@@ -20,7 +20,7 @@ import (
 )
 
 // DefaultDetectionTimeout is the default maximum time allowed for detection.
-const DefaultDetectionTimeout = 5 // seconds
+const DefaultDetectionTimeout = 5 * time.Second // seconds
 
 // SupportedProviders is a list of supported cloud service providers.
 var SupportedProviders = []types.ProviderId{
@@ -33,6 +33,12 @@ var SupportedProviders = []types.ProviderId{
 	types.Oci,
 	types.OpenStack,
 	types.Vultr,
+}
+
+type Option func(*config)
+
+type config struct {
+	timeout time.Duration
 }
 
 // Provider represents a cloud service provider.
@@ -55,18 +61,28 @@ var providers = map[types.ProviderId]Provider{
 	types.Vultr:        &vultr.Vultr{},
 }
 
+func WithTimeout(seconds uint64) Option {
+	return func(c *config) {
+		c.timeout = time.Duration(seconds) * time.Second
+	}
+}
+
 // Detect detects the host's cloud service provider.
-// If a non-zero timeout is specified, it overrides the default timeout duration.
-func Detect(timeout uint64) types.ProviderId {
-	t := timeout
-	if timeout == 0 {
-		t = DefaultDetectionTimeout
+// Options can be passed to customize the detection behavior, such as setting a timeout.
+func Detect(opts ...Option) types.ProviderId {
+	// Default config
+	cfg := config{
+		timeout: DefaultDetectionTimeout,
+	}
+
+	for _, o := range opts {
+		o(&cfg)
 	}
 
 	ch := make(chan types.ProviderId, 1)
 	wg := sync.WaitGroup{}
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(t)*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), cfg.timeout)
 	defer cancel()
 
 	for name, provider := range providers {
@@ -88,7 +104,7 @@ func Detect(timeout uint64) types.ProviderId {
 		logging.Logger.Info(fmt.Sprintf("Detected cloud service provider: %s", result))
 		return result
 	case <-ctx.Done():
-		logging.Logger.Error(fmt.Sprintf("Detection timed out after %d seconds", t))
+		logging.Logger.Error(fmt.Sprintf("Detection timed out after %d seconds", cfg.timeout))
 		return types.Unknown
 	}
 }

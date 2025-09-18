@@ -4,40 +4,41 @@ import (
 	"fmt"
 	"slices"
 	"testing"
+	"time"
 
 	"github.com/nikhil-prabhu/clouddetect/types"
 )
 
 func ExampleDetect_default() {
 	// Detect the cloud service provider with default timeout.
-	_ = Detect(0)
+	_ = Detect()
 
 	// Hardcoded values for example purposes (output may vary in real use cases)
 	provider := "aws"
 	elapsed := DefaultDetectionTimeout
 
 	fmt.Println("Detected cloud service provider:", provider)
-	fmt.Println("Detection took", elapsed, "seconds")
+	fmt.Println("Detection took", elapsed)
 
 	// Output:
 	// Detected cloud service provider: aws
-	// Detection took 5 seconds
+	// Detection took 5s
 }
 
 func ExampleDetect_custom() {
 	// Detect the cloud service provider with custom timeout.
-	_ = Detect(1)
+	_ = Detect(WithTimeout(1))
 
 	// Hardcoded values for example purposes (output may vary in real use cases)
 	provider := "aws"
-	elapsed := 1
+	elapsed := time.Second
 
 	fmt.Println("Detected cloud service provider:", provider)
-	fmt.Println("Detection took", elapsed, "second")
+	fmt.Println("Detection took", elapsed)
 
 	// Output:
 	// Detected cloud service provider: aws
-	// Detection took 1 second
+	// Detection took 1s
 }
 
 func ExampleSupportedProviders() {
@@ -49,7 +50,7 @@ func ExampleSupportedProviders() {
 }
 
 func TestDetect(t *testing.T) {
-	provider := Detect(1)
+	provider := Detect(WithTimeout(1))
 
 	if !slices.Contains(append(SupportedProviders, types.Unknown), provider) {
 		t.Errorf("Expected provider to be one of %v, got %s", SupportedProviders, string(provider))
