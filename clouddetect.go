@@ -17,6 +17,7 @@ import (
 	"github.com/nikhil-prabhu/clouddetect/providers/openstack"
 	"github.com/nikhil-prabhu/clouddetect/providers/vultr"
 	"github.com/nikhil-prabhu/clouddetect/types"
+	"go.uber.org/zap"
 )
 
 // DefaultDetectionTimeout is the default maximum time allowed for detection.
@@ -39,6 +40,7 @@ type Option func(*config)
 
 type config struct {
 	timeout time.Duration
+	logger  *zap.Logger
 }
 
 // Provider represents a cloud service provider.
@@ -67,12 +69,19 @@ func WithTimeout(seconds uint64) Option {
 	}
 }
 
+func WithLogger(logger *zap.Logger) Option {
+	return func(c *config) {
+		c.logger = logger
+	}
+}
+
 // Detect detects the host's cloud service provider.
-// Options can be passed to customize the detection behavior, such as setting a timeout.
+// Options can be passed to customize the detection behavior, such as setting a custom timeout and logger.
 func Detect(opts ...Option) types.ProviderId {
 	// Default config
 	cfg := config{
 		timeout: DefaultDetectionTimeout,
+		logger:  logging.Logger,
 	}
 
 	for _, o := range opts {
