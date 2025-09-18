@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/jarcoal/httpmock"
+	"go.uber.org/zap"
 
 	"github.com/nikhil-prabhu/clouddetect/types"
 )
@@ -53,8 +54,9 @@ func TestIdentify(t *testing.T) {
 
 			g := &Gcp{}
 			ch := make(chan types.ProviderId, 1)
+			logger := zap.NewNop()
 
-			go g.Identify(context.Background(), ch)
+			go g.Identify(context.Background(), ch, logger)
 
 			select {
 			case result := <-ch:
@@ -94,7 +96,8 @@ func TestCheckMetadataServer(t *testing.T) {
 			httpmock.RegisterResponder("GET", metadataURL, httpmock.NewStringResponder(tt.responseStatus, ""))
 
 			g := &Gcp{}
-			result := g.checkMetadataServer(context.Background())
+			logger := zap.NewNop()
+			result := g.checkMetadataServer(context.Background(), logger)
 
 			if result != tt.expectedResult {
 				t.Errorf("checkMetadataServer() = %v; want %v", result, tt.expectedResult)
@@ -132,7 +135,8 @@ func TestCheckVendorFile(t *testing.T) {
 			}(tmpFile)
 
 			g := &Gcp{}
-			result := g.checkVendorFile(tmpFile)
+			logger := zap.NewNop()
+			result := g.checkVendorFile(tmpFile, logger)
 
 			if result != tt.expectedResult {
 				t.Errorf("checkVendorFile() = %v; want %v", result, tt.expectedResult)

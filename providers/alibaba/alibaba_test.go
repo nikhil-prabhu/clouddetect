@@ -10,7 +10,6 @@ import (
 	"github.com/jarcoal/httpmock"
 	"go.uber.org/zap"
 
-	"github.com/nikhil-prabhu/clouddetect/logging"
 	"github.com/nikhil-prabhu/clouddetect/types"
 )
 
@@ -48,9 +47,10 @@ func TestIdentify(t *testing.T) {
 
 			a := &Alibaba{}
 			ch := make(chan types.ProviderId)
+			logger := zap.NewNop()
 
 			// Start Identify in a goroutine
-			go a.Identify(context.Background(), ch)
+			go a.Identify(context.Background(), ch, logger)
 
 			// Close the channel after a timeout to simulate the failure case
 			go func() {
@@ -102,7 +102,8 @@ func TestCheckMetadataServer(t *testing.T) {
 			httpmock.RegisterResponder("GET", metadataURL, httpmock.NewStringResponder(tt.statusCode, tt.response))
 
 			a := &Alibaba{}
-			result := a.checkMetadataServer(context.Background())
+			logger := zap.NewNop()
+			result := a.checkMetadataServer(context.Background(), logger)
 
 			if result != tt.expectPass {
 				t.Errorf("checkMetadataServer() = %v; want %v", result, tt.expectPass)
@@ -135,6 +136,7 @@ func createTempFile(t *testing.T, content string) string {
 // Unit test for checkVendorFile
 func TestCheckVendorFile(t *testing.T) {
 	a := &Alibaba{}
+	logger := zap.NewNop()
 
 	t.Run("FileContainsAlibabaCloudECS", func(t *testing.T) {
 		// Arrange
@@ -143,12 +145,12 @@ func TestCheckVendorFile(t *testing.T) {
 		defer func(name string) {
 			err := os.Remove(name)
 			if err != nil {
-				logging.Logger.Error("Error removing temp file", zap.Error(err))
+				logger.Error("Error removing temp file", zap.Error(err))
 			}
 		}(tempFile) // Ensure cleanup
 
 		// Act
-		result := a.checkVendorFile(tempFile)
+		result := a.checkVendorFile(tempFile, logger)
 
 		// Assert
 		if !result {
@@ -163,12 +165,12 @@ func TestCheckVendorFile(t *testing.T) {
 		defer func(name string) {
 			err := os.Remove(name)
 			if err != nil {
-				logging.Logger.Error("Error removing temp file", zap.Error(err))
+				logger.Error("Error removing temp file", zap.Error(err))
 			}
 		}(tempFile) // Ensure cleanup
 
 		// Act
-		result := a.checkVendorFile(tempFile)
+		result := a.checkVendorFile(tempFile, logger)
 
 		// Assert
 		if result {
@@ -178,7 +180,7 @@ func TestCheckVendorFile(t *testing.T) {
 
 	t.Run("FileDoesNotExist", func(t *testing.T) {
 		// Act
-		result := a.checkVendorFile("/path/to/nonexistent/file")
+		result := a.checkVendorFile("/path/to/nonexistent/file", logger)
 
 		// Assert
 		if result {

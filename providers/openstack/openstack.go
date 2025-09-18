@@ -10,8 +10,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/nikhil-prabhu/clouddetect/logging"
 	"github.com/nikhil-prabhu/clouddetect/types"
+	"go.uber.org/zap"
 )
 
 const (
@@ -32,66 +32,66 @@ func (o *OpenStack) Identifier() types.ProviderId {
 	return identifier
 }
 
-func (o *OpenStack) Identify(ctx context.Context, ch chan<- types.ProviderId) {
-	if o.checkMetadataServer(ctx) {
+func (o *OpenStack) Identify(ctx context.Context, ch chan<- types.ProviderId, logger *zap.Logger) {
+	if o.checkMetadataServer(ctx, logger) {
 		ch <- o.Identifier()
 		return
 	}
 
-	if o.checkProductNameFile(productNameFile) {
+	if o.checkProductNameFile(productNameFile, logger) {
 		ch <- o.Identifier()
 		return
 	}
 
-	if o.checkChassisAssetTagFile(chassisAssetTagFile) {
+	if o.checkChassisAssetTagFile(chassisAssetTagFile, logger) {
 		ch <- o.Identifier()
 		return
 	}
 }
 
-func (o *OpenStack) checkMetadataServer(ctx context.Context) bool {
-	logging.Logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
+func (o *OpenStack) checkMetadataServer(ctx context.Context, logger *zap.Logger) bool {
+	logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
 
 	client := &http.Client{}
 	req, err := http.NewRequestWithContext(ctx, "GET", metadataURL, nil)
 	if err != nil {
-		logging.Logger.Error(fmt.Sprintf("Error creating request: %s", err))
+		logger.Error(fmt.Sprintf("Error creating request: %s", err))
 		return false
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
-		logging.Logger.Error(fmt.Sprintf("Error reading response: %s", err))
+		logger.Error(fmt.Sprintf("Error reading response: %s", err))
 		return false
 	}
 	defer func(Body io.ReadCloser) {
 		closeErr := Body.Close()
 		if closeErr != nil {
-			logging.Logger.Error(fmt.Sprintf("Error closing response body: %s", closeErr))
+			logger.Error(fmt.Sprintf("Error closing response body: %s", closeErr))
 		}
 	}(resp.Body)
 
 	return resp.StatusCode == http.StatusOK
 }
 
-func (o *OpenStack) checkProductNameFile(file string) bool {
-	logging.Logger.Debug(fmt.Sprintf("Checking %s product name using file %s", identifier, file))
+func (o *OpenStack) checkProductNameFile(file string, logger *zap.Logger) bool {
+	logger.Debug(fmt.Sprintf("Checking %s product name using file %s", identifier, file))
 
 	content, err := os.ReadFile(file)
 	if err != nil {
-		logging.Logger.Error(fmt.Sprintf("Error reading file: %s", err))
+		logger.Error(fmt.Sprintf("Error reading file: %s", err))
 		return false
 	}
 
 	return slices.Contains(productNames, strings.TrimSpace(string(content)))
 }
 
-func (o *OpenStack) checkChassisAssetTagFile(file string) bool {
-	logging.Logger.Debug(fmt.Sprintf("Checking %s chassis asset tag using file %s", identifier, file))
+func (o *OpenStack) checkChassisAssetTagFile(file string, logger *zap.Logger) bool {
+	logger.Debug(fmt.Sprintf("Checking %s chassis asset tag using file %s", identifier, file))
 
 	content, err := os.ReadFile(file)
 	if err != nil {
-		logging.Logger.Error(fmt.Sprintf("Error reading file: %s", err))
+		logger.Error(fmt.Sprintf("Error reading file: %s", err))
 		return false
 	}
 

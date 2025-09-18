@@ -10,8 +10,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/nikhil-prabhu/clouddetect/logging"
 	"github.com/nikhil-prabhu/clouddetect/types"
+	"go.uber.org/zap"
 )
 
 const (
@@ -34,61 +34,61 @@ func (a *Azure) Identifier() types.ProviderId {
 	return identifier
 }
 
-func (a *Azure) Identify(ctx context.Context, ch chan<- types.ProviderId) {
-	if a.checkMetadataServer(ctx) {
+func (a *Azure) Identify(ctx context.Context, ch chan<- types.ProviderId, logger *zap.Logger) {
+	if a.checkMetadataServer(ctx, logger) {
 		ch <- a.Identifier()
 		return
 	}
 
-	if a.checkVendorFile(vendorFile) {
+	if a.checkVendorFile(vendorFile, logger) {
 		ch <- a.Identifier()
 		return
 	}
 }
 
-func (a *Azure) checkMetadataServer(ctx context.Context) bool {
-	logging.Logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
+func (a *Azure) checkMetadataServer(ctx context.Context, logger *zap.Logger) bool {
+	logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
 
 	client := &http.Client{}
 	req, err := http.NewRequestWithContext(ctx, "GET", metadataURL, nil)
 	if err != nil {
-		logging.Logger.Error(fmt.Sprintf("Error creating request: %s", err))
+		logger.Error(fmt.Sprintf("Error creating request: %s", err))
 		return false
 	}
 	req.Header.Add("Metadata", "true")
 
 	resp, err := client.Do(req)
 	if err != nil {
-		logging.Logger.Error(fmt.Sprintf("Error sending request: %s", err))
+		logger.Error(fmt.Sprintf("Error sending request: %s", err))
 		return false
 	}
 	defer func(Body io.ReadCloser) {
 		closeErr := Body.Close()
 		if closeErr != nil {
-			logging.Logger.Error(fmt.Sprintf("Error closing response body: %s", closeErr))
+			logger.Error(fmt.Sprintf("Error closing response body: %s", closeErr))
 		}
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		logging.Logger.Error(fmt.Sprintf("Error response status code: %d", resp.StatusCode))
+		logger.Error(fmt.Sprintf("Error response status code: %d", resp.StatusCode))
 		return false
 	}
 
 	metadata := new(metadataResponse)
 	if decodeErr := json.NewDecoder(resp.Body).Decode(metadata); decodeErr != nil {
-		logging.Logger.Error(fmt.Sprintf("Error decoding response: %s", decodeErr))
+		logger.Error(fmt.Sprintf("Error decoding response: %s", decodeErr))
 		return false
 	}
 
 	return len(metadata.Compute.VMID) > 0
 }
 
-func (a *Azure) checkVendorFile(file string) bool {
-	logging.Logger.Debug(fmt.Sprintf("Checking %s vendor file %s", identifier, file))
+func (a *Azure) checkVendorFile(file string, logger *zap.Logger) bool {
+	logger.Debug(fmt.Sprintf("Checking %s vendor file %s", identifier, file))
 
 	content, err := os.ReadFile(file)
 	if err != nil {
-		logging.Logger.Error(fmt.Sprintf("Error reading file: %s", err))
+		logger.Error(fmt.Sprintf("Error reading file: %s", err))
 		return false
 	}
 

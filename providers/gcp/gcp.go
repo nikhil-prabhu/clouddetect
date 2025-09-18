@@ -9,8 +9,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/nikhil-prabhu/clouddetect/logging"
 	"github.com/nikhil-prabhu/clouddetect/types"
+	"go.uber.org/zap"
 )
 
 const (
@@ -25,50 +25,50 @@ func (g *Gcp) Identifier() types.ProviderId {
 	return identifier
 }
 
-func (g *Gcp) Identify(ctx context.Context, ch chan<- types.ProviderId) {
-	if g.checkMetadataServer(ctx) {
+func (g *Gcp) Identify(ctx context.Context, ch chan<- types.ProviderId, logger *zap.Logger) {
+	if g.checkMetadataServer(ctx, logger) {
 		ch <- g.Identifier()
 		return
 	}
 
-	if g.checkVendorFile(vendorFile) {
+	if g.checkVendorFile(vendorFile, logger) {
 		ch <- g.Identifier()
 		return
 	}
 }
 
-func (g *Gcp) checkMetadataServer(ctx context.Context) bool {
-	logging.Logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
+func (g *Gcp) checkMetadataServer(ctx context.Context, logger *zap.Logger) bool {
+	logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
 
 	client := &http.Client{}
 	req, err := http.NewRequestWithContext(ctx, "GET", metadataURL, nil)
 	if err != nil {
-		logging.Logger.Error(fmt.Sprintf("Error creating request: %s", err))
+		logger.Error(fmt.Sprintf("Error creating request: %s", err))
 		return false
 	}
 	req.Header.Add("Metadata-Flavor", "Google")
 
 	resp, err := client.Do(req)
 	if err != nil {
-		logging.Logger.Error(fmt.Sprintf("Error sending request: %s", err))
+		logger.Error(fmt.Sprintf("Error sending request: %s", err))
 		return false
 	}
 	defer func(Body io.ReadCloser) {
 		closeErr := Body.Close()
 		if closeErr != nil {
-			logging.Logger.Error(fmt.Sprintf("Error closing response body: %s", closeErr))
+			logger.Error(fmt.Sprintf("Error closing response body: %s", closeErr))
 		}
 	}(resp.Body)
 
 	return resp.StatusCode == http.StatusOK
 }
 
-func (g *Gcp) checkVendorFile(file string) bool {
-	logging.Logger.Debug(fmt.Sprintf("Checking %s vendor file %s", identifier, file))
+func (g *Gcp) checkVendorFile(file string, logger *zap.Logger) bool {
+	logger.Debug(fmt.Sprintf("Checking %s vendor file %s", identifier, file))
 
 	content, err := os.ReadFile(file)
 	if err != nil {
-		logging.Logger.Error(fmt.Sprintf("Error reading file: %s", err))
+		logger.Error(fmt.Sprintf("Error reading file: %s", err))
 		return false
 	}
 

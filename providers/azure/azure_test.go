@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/jarcoal/httpmock"
+	"go.uber.org/zap"
 
 	"github.com/nikhil-prabhu/clouddetect/types"
 )
@@ -44,8 +45,9 @@ func TestIdentify(t *testing.T) {
 
 			a := &Azure{}
 			ch := make(chan types.ProviderId, 1)
+			logger := zap.NewNop()
 
-			go a.Identify(context.Background(), ch)
+			go a.Identify(context.Background(), ch, logger)
 
 			select {
 			case result := <-ch:
@@ -94,7 +96,8 @@ func TestCheckMetadataServer(t *testing.T) {
 			httpmock.RegisterResponder("GET", metadataURL, httpmock.NewStringResponder(tt.responseStatus, tt.responseBody))
 
 			a := &Azure{}
-			result := a.checkMetadataServer(context.Background())
+			logger := zap.NewNop()
+			result := a.checkMetadataServer(context.Background(), logger)
 
 			if result != tt.expectedResult {
 				t.Errorf("checkMetadataServer() = %v; want %v", result, tt.expectedResult)
@@ -132,7 +135,8 @@ func TestCheckVendorFile(t *testing.T) {
 			}(tmpFile)
 
 			a := &Azure{}
-			result := a.checkVendorFile(tmpFile)
+			logger := zap.NewNop()
+			result := a.checkVendorFile(tmpFile, logger)
 
 			if result != tt.expectedResult {
 				t.Errorf("checkVendorFile() = %v; want %v", result, tt.expectedResult)
@@ -143,7 +147,8 @@ func TestCheckVendorFile(t *testing.T) {
 
 func TestCheckVendorFile_FileNotFound(t *testing.T) {
 	a := &Azure{}
-	result := a.checkVendorFile("/path/to/nonexistent/file")
+	logger := zap.NewNop()
+	result := a.checkVendorFile("/path/to/nonexistent/file", logger)
 
 	if result {
 		t.Errorf("Expected checkVendorFile() to return false for nonexistent file")

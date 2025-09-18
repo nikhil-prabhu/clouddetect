@@ -1,3 +1,4 @@
+// Package akamai implements the Akamai provider detection.
 package akamai
 
 import (
@@ -8,8 +9,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/nikhil-prabhu/clouddetect/logging"
 	"github.com/nikhil-prabhu/clouddetect/types"
+	"go.uber.org/zap"
 )
 
 const (
@@ -19,7 +20,7 @@ const (
 )
 
 type metadataResponse struct {
-	Id       int    `json:"id"`
+	ID       int    `json:"id"`
 	HostUUID string `json:"host_uuid"`
 }
 
@@ -29,7 +30,7 @@ func (a *Akamai) Identifier() types.ProviderId {
 	return identifier
 }
 
-func (a *Akamai) getMetadata(ctx context.Context) (*metadataResponse, error) {
+func (a *Akamai) getMetadata(ctx context.Context, logger *zap.Logger) (*metadataResponse, error) {
 	client := &http.Client{}
 	req, err := http.NewRequestWithContext(ctx, "GET", tokenURL, nil)
 	if err != nil {
@@ -44,7 +45,7 @@ func (a *Akamai) getMetadata(ctx context.Context) (*metadataResponse, error) {
 	defer func(Body io.ReadCloser) {
 		closeErr := Body.Close()
 		if closeErr != nil {
-			logging.Logger.Error(fmt.Sprintf("Error closing response body: %s", closeErr))
+			logger.Error(fmt.Sprintf("Error closing response body: %s", closeErr))
 		}
 	}(resp.Body)
 
@@ -70,7 +71,7 @@ func (a *Akamai) getMetadata(ctx context.Context) (*metadataResponse, error) {
 	defer func(Body io.ReadCloser) {
 		closeErr := Body.Close()
 		if closeErr != nil {
-			logging.Logger.Error(fmt.Sprintf("Error closing response body: %s", closeErr))
+			logger.Error(fmt.Sprintf("Error closing response body: %s", closeErr))
 		}
 	}(resp.Body)
 
@@ -86,21 +87,21 @@ func (a *Akamai) getMetadata(ctx context.Context) (*metadataResponse, error) {
 	return metadata, nil
 }
 
-func (a *Akamai) Identify(ctx context.Context, ch chan<- types.ProviderId) {
-	if a.checkMetadataServer(ctx) {
+func (a *Akamai) Identify(ctx context.Context, ch chan<- types.ProviderId, logger *zap.Logger) {
+	if a.checkMetadataServer(ctx, logger) {
 		ch <- a.Identifier()
 		return
 	}
 }
 
-func (a *Akamai) checkMetadataServer(ctx context.Context) bool {
-	logging.Logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
+func (a *Akamai) checkMetadataServer(ctx context.Context, logger *zap.Logger) bool {
+	logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
 
-	metadata, err := a.getMetadata(ctx)
+	metadata, err := a.getMetadata(ctx, logger)
 	if err != nil {
-		logging.Logger.Error(fmt.Sprintf("Error reading response: %s", err))
+		logger.Error(fmt.Sprintf("Error reading response: %s", err))
 		return false
 	}
 
-	return metadata.Id > 0 && strings.TrimSpace(metadata.HostUUID) != ""
+	return metadata.ID > 0 && strings.TrimSpace(metadata.HostUUID) != ""
 }

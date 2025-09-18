@@ -7,7 +7,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/nikhil-prabhu/clouddetect/logging"
 	"github.com/nikhil-prabhu/clouddetect/providers/alibaba"
 	"github.com/nikhil-prabhu/clouddetect/providers/aws"
 	"github.com/nikhil-prabhu/clouddetect/providers/azure"
@@ -48,8 +47,8 @@ type config struct {
 // This interface is not guaranteed to remain stable/public and may change or be removed in the future.
 // Do not depend on this interface outside of this package.
 type Provider interface {
-	Identifier() types.ProviderId                      // Identifier returns the cloud service provider identifier.
-	Identify(context.Context, chan<- types.ProviderId) // Identify detects the cloud service provider.
+	Identifier() types.ProviderId                                   // Identifier returns the cloud service provider identifier.
+	Identify(context.Context, chan<- types.ProviderId, *zap.Logger) // Identify detects the cloud service provider.
 }
 
 var providers = map[types.ProviderId]Provider{
@@ -81,7 +80,7 @@ func Detect(opts ...Option) types.ProviderId {
 	// Default config
 	cfg := config{
 		timeout: DefaultDetectionTimeout,
-		logger:  logging.Logger,
+		logger:  zap.NewNop(),
 	}
 
 	for _, o := range opts {
@@ -97,9 +96,9 @@ func Detect(opts ...Option) types.ProviderId {
 	for name, provider := range providers {
 		wg.Add(1)
 		go func(name types.ProviderId, provider Provider) {
-			logging.Logger.Debug(fmt.Sprintf("Starting detection routine for %s", name))
+			cfg.logger.Debug(fmt.Sprintf("Starting detection routine for %s", name))
 			defer wg.Done()
-			provider.Identify(ctx, ch)
+			provider.Identify(ctx, ch, cfg.logger)
 		}(name, provider)
 	}
 
@@ -110,10 +109,10 @@ func Detect(opts ...Option) types.ProviderId {
 
 	select {
 	case result := <-ch:
-		logging.Logger.Info(fmt.Sprintf("Detected cloud service provider: %s", result))
+		cfg.logger.Info(fmt.Sprintf("Detected cloud service provider: %s", result))
 		return result
 	case <-ctx.Done():
-		logging.Logger.Error(fmt.Sprintf("Detection timed out after %d seconds", cfg.timeout))
+		cfg.logger.Error(fmt.Sprintf("Detection timed out after %d seconds", cfg.timeout))
 		return types.Unknown
 	}
 }

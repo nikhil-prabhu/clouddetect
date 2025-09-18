@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/jarcoal/httpmock"
+	"go.uber.org/zap"
 
 	"github.com/nikhil-prabhu/clouddetect/types"
 )
@@ -52,8 +53,9 @@ func TestIdentify(t *testing.T) {
 
 			o := &OpenStack{}
 			ch := make(chan types.ProviderId, 1)
+			logger := zap.NewNop()
 
-			go o.Identify(context.Background(), ch)
+			go o.Identify(context.Background(), ch, logger)
 
 			select {
 			case result := <-ch:
@@ -93,7 +95,8 @@ func TestCheckMetadataServer(t *testing.T) {
 			httpmock.RegisterResponder("GET", metadataURL, httpmock.NewStringResponder(tt.responseStatus, ""))
 
 			o := &OpenStack{}
-			result := o.checkMetadataServer(context.Background())
+			logger := zap.NewNop()
+			result := o.checkMetadataServer(context.Background(), logger)
 
 			if result != tt.expectedResult {
 				t.Errorf("checkMetadataServer() = %v; want %v", result, tt.expectedResult)
@@ -131,7 +134,8 @@ func TestCheckProductNameFile(t *testing.T) {
 			}(tmpFile)
 
 			o := &OpenStack{}
-			result := o.checkProductNameFile(tmpFile)
+			logger := zap.NewNop()
+			result := o.checkProductNameFile(tmpFile, logger)
 
 			if result != tt.expectedResult {
 				t.Errorf("checkProductNameFile() = %v; want %v", result, tt.expectedResult)
@@ -169,7 +173,8 @@ func TestCheckChassisAssetTagFile(t *testing.T) {
 			}(tmpFile)
 
 			o := &OpenStack{}
-			result := o.checkChassisAssetTagFile(tmpFile)
+			logger := zap.NewNop()
+			result := o.checkChassisAssetTagFile(tmpFile, logger)
 
 			if result != tt.expectedResult {
 				t.Errorf("checkChassisAssetTagFile() = %v; want %v", result, tt.expectedResult)

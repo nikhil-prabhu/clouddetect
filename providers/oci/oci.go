@@ -10,8 +10,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/nikhil-prabhu/clouddetect/logging"
 	"github.com/nikhil-prabhu/clouddetect/types"
+	"go.uber.org/zap"
 )
 
 const (
@@ -30,60 +30,60 @@ func (o *Oci) Identifier() types.ProviderId {
 	return identifier
 }
 
-func (o *Oci) Identify(ctx context.Context, ch chan<- types.ProviderId) {
-	if o.checkMetadataServer(ctx) {
+func (o *Oci) Identify(ctx context.Context, ch chan<- types.ProviderId, logger *zap.Logger) {
+	if o.checkMetadataServer(ctx, logger) {
 		ch <- o.Identifier()
 		return
 	}
 
-	if o.checkVendorFile(vendorFile) {
+	if o.checkVendorFile(vendorFile, logger) {
 		ch <- o.Identifier()
 		return
 	}
 }
 
-func (o *Oci) checkMetadataServer(ctx context.Context) bool {
-	logging.Logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
+func (o *Oci) checkMetadataServer(ctx context.Context, logger *zap.Logger) bool {
+	logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
 
 	client := &http.Client{}
 	req, err := http.NewRequestWithContext(ctx, "GET", metadataURL, nil)
 	if err != nil {
-		logging.Logger.Error(fmt.Sprintf("Error creating request: %s", err))
+		logger.Error(fmt.Sprintf("Error creating request: %s", err))
 		return false
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
-		logging.Logger.Error(fmt.Sprintf("Error reading response: %s", err))
+		logger.Error(fmt.Sprintf("Error reading response: %s", err))
 		return false
 	}
 	defer func(Body io.ReadCloser) {
 		closeErr := Body.Close()
 		if closeErr != nil {
-			logging.Logger.Error(fmt.Sprintf("Error closing response body: %s", closeErr))
+			logger.Error(fmt.Sprintf("Error closing response body: %s", closeErr))
 		}
 	}(resp.Body)
 
 	if resp.StatusCode != http.StatusOK {
-		logging.Logger.Error(fmt.Sprintf("Error response status code: %d", resp.StatusCode))
+		logger.Error(fmt.Sprintf("Error response status code: %d", resp.StatusCode))
 		return false
 	}
 
 	metadata := new(metadataResponse)
 	if decodeErr := json.NewDecoder(resp.Body).Decode(metadata); decodeErr != nil {
-		logging.Logger.Error(fmt.Sprintf("Error decoding response: %s", decodeErr))
+		logger.Error(fmt.Sprintf("Error decoding response: %s", decodeErr))
 		return false
 	}
 
 	return strings.Contains(metadata.OkeTm, "oke")
 }
 
-func (o *Oci) checkVendorFile(file string) bool {
-	logging.Logger.Debug(fmt.Sprintf("Checking %s vendor file %s", identifier, file))
+func (o *Oci) checkVendorFile(file string, logger *zap.Logger) bool {
+	logger.Debug(fmt.Sprintf("Checking %s vendor file %s", identifier, file))
 
 	content, err := os.ReadFile(file)
 	if err != nil {
-		logging.Logger.Error(fmt.Sprintf("Error reading file: %s", err))
+		logger.Error(fmt.Sprintf("Error reading file: %s", err))
 		return false
 	}
 

@@ -10,8 +10,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/nikhil-prabhu/clouddetect/logging"
 	"github.com/nikhil-prabhu/clouddetect/types"
+	"go.uber.org/zap"
 )
 
 const (
@@ -33,7 +33,7 @@ func (a *Aws) Identifier() types.ProviderId {
 	return identifier
 }
 
-func (a *Aws) getMetadataIMDSv1(ctx context.Context) (*metadataResponse, error) {
+func (a *Aws) getMetadataIMDSv1(ctx context.Context, logger *zap.Logger) (*metadataResponse, error) {
 	client := &http.Client{}
 	req, err := http.NewRequestWithContext(ctx, "GET", metadataURL, nil)
 	if err != nil {
@@ -47,7 +47,7 @@ func (a *Aws) getMetadataIMDSv1(ctx context.Context) (*metadataResponse, error) 
 	defer func(Body io.ReadCloser) {
 		closeErr := Body.Close()
 		if closeErr != nil {
-			logging.Logger.Error(fmt.Sprintf("Error closing response body: %s", closeErr))
+			logger.Error(fmt.Sprintf("Error closing response body: %s", closeErr))
 		}
 	}(resp.Body)
 
@@ -63,7 +63,7 @@ func (a *Aws) getMetadataIMDSv1(ctx context.Context) (*metadataResponse, error) 
 	return metadata, nil
 }
 
-func (a *Aws) getMetadataIMDSv2(ctx context.Context) (*metadataResponse, error) {
+func (a *Aws) getMetadataIMDSv2(ctx context.Context, logger *zap.Logger) (*metadataResponse, error) {
 	client := &http.Client{}
 	req, err := http.NewRequestWithContext(ctx, "GET", tokenURL, nil)
 	if err != nil {
@@ -78,7 +78,7 @@ func (a *Aws) getMetadataIMDSv2(ctx context.Context) (*metadataResponse, error) 
 	defer func(Body io.ReadCloser) {
 		closeErr := Body.Close()
 		if closeErr != nil {
-			logging.Logger.Error(fmt.Sprintf("Error closing response body: %s", closeErr))
+			logger.Error(fmt.Sprintf("Error closing response body: %s", closeErr))
 		}
 	}(resp.Body)
 
@@ -104,7 +104,7 @@ func (a *Aws) getMetadataIMDSv2(ctx context.Context) (*metadataResponse, error) 
 	defer func(Body io.ReadCloser) {
 		closeErr := Body.Close()
 		if closeErr != nil {
-			logging.Logger.Error(fmt.Sprintf("Error closing response body: %s", closeErr))
+			logger.Error(fmt.Sprintf("Error closing response body: %s", closeErr))
 		}
 	}(resp.Body)
 
@@ -120,70 +120,70 @@ func (a *Aws) getMetadataIMDSv2(ctx context.Context) (*metadataResponse, error) 
 	return metadata, nil
 }
 
-func (a *Aws) Identify(ctx context.Context, ch chan<- types.ProviderId) {
-	if a.checkMetadataServerV2(ctx) {
+func (a *Aws) Identify(ctx context.Context, ch chan<- types.ProviderId, logger *zap.Logger) {
+	if a.checkMetadataServerV2(ctx, logger) {
 		ch <- a.Identifier()
 		return
 	}
 
-	if a.checkMetadataServerV1(ctx) {
+	if a.checkMetadataServerV1(ctx, logger) {
 		ch <- a.Identifier()
 		return
 	}
 
-	if a.checkProductVersionFile(productVersionFile) {
+	if a.checkProductVersionFile(productVersionFile, logger) {
 		ch <- a.Identifier()
 		return
 	}
 
-	if a.checkBiosVendorFile(biosVendorFile) {
+	if a.checkBiosVendorFile(biosVendorFile, logger) {
 		ch <- a.Identifier()
 		return
 	}
 }
 
-func (a *Aws) checkMetadataServerV2(ctx context.Context) bool {
-	logging.Logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
+func (a *Aws) checkMetadataServerV2(ctx context.Context, logger *zap.Logger) bool {
+	logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
 
-	metadata, err := a.getMetadataIMDSv2(ctx)
+	metadata, err := a.getMetadataIMDSv2(ctx, logger)
 	if err != nil {
-		logging.Logger.Error(fmt.Sprintf("Error reading response: %s", err))
+		logger.Error(fmt.Sprintf("Error reading response: %s", err))
 		return false
 	}
 
 	return strings.HasPrefix(metadata.ImageID, "ami-") && strings.HasPrefix(metadata.InstanceID, "i-")
 }
 
-func (a *Aws) checkMetadataServerV1(ctx context.Context) bool {
-	logging.Logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
+func (a *Aws) checkMetadataServerV1(ctx context.Context, logger *zap.Logger) bool {
+	logger.Debug(fmt.Sprintf("Checking %s metadata using url %s", identifier, metadataURL))
 
-	metadata, err := a.getMetadataIMDSv1(ctx)
+	metadata, err := a.getMetadataIMDSv1(ctx, logger)
 	if err != nil {
-		logging.Logger.Error(fmt.Sprintf("Error reading response: %s", err))
+		logger.Error(fmt.Sprintf("Error reading response: %s", err))
 		return false
 	}
 
 	return strings.HasPrefix(metadata.ImageID, "ami-") && strings.HasPrefix(metadata.InstanceID, "i-")
 }
 
-func (a *Aws) checkProductVersionFile(file string) bool {
-	logging.Logger.Debug(fmt.Sprintf("Checking %s product version file %s", identifier, file))
+func (a *Aws) checkProductVersionFile(file string, logger *zap.Logger) bool {
+	logger.Debug(fmt.Sprintf("Checking %s product version file %s", identifier, file))
 
 	content, err := os.ReadFile(file)
 	if err != nil {
-		logging.Logger.Error(fmt.Sprintf("Error reading file: %s", err))
+		logger.Error(fmt.Sprintf("Error reading file: %s", err))
 		return false
 	}
 
 	return strings.Contains(strings.ToLower(string(content)), "amazon")
 }
 
-func (a *Aws) checkBiosVendorFile(file string) bool {
-	logging.Logger.Debug(fmt.Sprintf("Checking %s bios vendor file %s", identifier, file))
+func (a *Aws) checkBiosVendorFile(file string, logger *zap.Logger) bool {
+	logger.Debug(fmt.Sprintf("Checking %s bios vendor file %s", identifier, file))
 
 	content, err := os.ReadFile(file)
 	if err != nil {
-		logging.Logger.Error(fmt.Sprintf("Error reading file: %s", err))
+		logger.Error(fmt.Sprintf("Error reading file: %s", err))
 		return false
 	}
 

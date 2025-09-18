@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/jarcoal/httpmock"
+	"go.uber.org/zap"
 
 	"github.com/nikhil-prabhu/clouddetect/types"
 )
@@ -30,7 +31,7 @@ func TestIdentify(t *testing.T) {
 				httpmock.RegisterResponder("GET", tokenURL, httpmock.NewStringResponder(200, "test-token"))
 				httpmock.RegisterResponder("GET", metadataURL,
 					httpmock.NewJsonResponderOrPanic(200, metadataResponse{
-						Id:       123,
+						ID:       123,
 						HostUUID: "123abc",
 					}))
 			},
@@ -46,8 +47,9 @@ func TestIdentify(t *testing.T) {
 
 			a := &Akamai{}
 			ch := make(chan types.ProviderId)
+			logger := zap.NewNop()
 
-			go a.Identify(context.Background(), ch)
+			go a.Identify(context.Background(), ch, logger)
 
 			select {
 			case result := <-ch:
@@ -73,20 +75,20 @@ func TestGetMetadata(t *testing.T) {
 				return httpmock.NewStringResponse(403, ""), nil
 			}
 			return httpmock.NewJsonResponse(200, metadataResponse{
-				Id:       123,
+				ID:       123,
 				HostUUID: "123abc",
 			})
 		},
 	)
 
 	a := &Akamai{}
-	metadata, err := a.getMetadata(context.Background())
-
+	logger := zap.NewNop()
+	metadata, err := a.getMetadata(context.Background(), logger)
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
 
-	if metadata.Id != 123 || metadata.HostUUID != "123abc" {
+	if metadata.ID != 123 || metadata.HostUUID != "123abc" {
 		t.Errorf("Incorrect metadata: %v", metadata)
 	}
 }
@@ -98,12 +100,13 @@ func TestCheckMetadataServer(t *testing.T) {
 	httpmock.RegisterResponder("GET", tokenURL, httpmock.NewStringResponder(200, "test-token"))
 	httpmock.RegisterResponder("GET", metadataURL,
 		httpmock.NewJsonResponderOrPanic(200, metadataResponse{
-			Id:       123,
+			ID:       123,
 			HostUUID: "123abc",
 		}))
 
 	a := &Akamai{}
-	if !a.checkMetadataServer(context.Background()) {
+	logger := zap.NewNop()
+	if !a.checkMetadataServer(context.Background(), logger) {
 		t.Error("Expected checkMetadataServer to return true")
 	}
 }
