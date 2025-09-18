@@ -10,8 +10,9 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/nikhil-prabhu/clouddetect/types"
 	"go.uber.org/zap"
+
+	"github.com/nikhil-prabhu/clouddetect/types"
 )
 
 const (

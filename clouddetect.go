@@ -7,6 +7,8 @@ import (
 	"sync"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/nikhil-prabhu/clouddetect/providers/alibaba"
 	"github.com/nikhil-prabhu/clouddetect/providers/aws"
 	"github.com/nikhil-prabhu/clouddetect/providers/azure"
@@ -16,7 +18,6 @@ import (
 	"github.com/nikhil-prabhu/clouddetect/providers/openstack"
 	"github.com/nikhil-prabhu/clouddetect/providers/vultr"
 	"github.com/nikhil-prabhu/clouddetect/types"
-	"go.uber.org/zap"
 )
 
 // DefaultDetectionTimeout is the default maximum time allowed for detection.
