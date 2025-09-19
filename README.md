@@ -10,37 +10,40 @@
 
 A Go library to detect the cloud service provider of a host.
 
-This library is the Go version of my Rust crate [cloud-detect](https://github.com/nikhil-prabhu/cloud-detect), which in
-itself is inspired by the Python-based [cloud-detect](https://github.com/dgzlopes/cloud-detect)
-and the Go-based [satellite](https://github.com/banzaicloud/satellite) modules.
+This library is the Go version of my Rust crate
+[cloud-detect](https://github.com/nikhil-prabhu/cloud-detect), which in itself is
+inspired by the Python-based
+[cloud-detect](https://github.com/dgzlopes/cloud-detect) and the Go-based
+[satellite](https://github.com/banzaicloud/satellite) modules.
 
-Like these modules, `clouddetect` uses a combination of checking vendor files and metadata endpoints to accurately
-determine the cloud provider of a host.
+Like these modules, `clouddetect` uses a combination of checking vendor files
+and metadata endpoints to accurately determine the cloud provider of a host.
 
-*While this library is structured similarly to the Rust crate, it follows Go conventions and idioms and is not a direct
-port.*
+*While this library is structured similarly to the Rust crate, it follows Go
+conventions and idioms and is not a direct port.*
 
 ## Features
 
 * Currently, this module supports the identification of the following providers:
-    - Akamai Cloud (`akamai`)
-    - Amazon Web Services (`aws`)
-    - Microsoft Azure (`azure`)
-    - Google Cloud Platform (`gcp`)
-    - Alibaba Cloud (`alibaba`)
-    - OpenStack (`openstack`)
-    - DigitalOcean (`digitalocean`)
-    - Oracle Cloud Infrastructure (`oci`)
-    - Vultr (`vultr`)
+  * Akamai Cloud (`akamai`)
+  * Amazon Web Services (`aws`)
+  * Microsoft Azure (`azure`)
+  * Google Cloud Platform (`gcp`)
+  * Alibaba Cloud (`alibaba`)
+  * OpenStack (`openstack`)
+  * DigitalOcean (`digitalocean`)
+  * Oracle Cloud Infrastructure (`oci`)
+  * Vultr (`vultr`)
 * Fast, simple and extensible.
-* Real-time console logging using the [`zap`](https://pkg.go.dev/go.uber.org/zap) module.
+* Real-time console logging using the
+[`zap`](https://pkg.go.dev/go.uber.org/zap) module.
 
 ## Usage
 
 Add the library to your project by running:
 
 ```bash
-$ go get github.com/nikhil-prabhu/clouddetect@latest
+go get github.com/nikhil-prabhu/clouddetect/v2@latest
 ```
 
 Detect the cloud provider and print the result (with default timeout).
@@ -49,57 +52,50 @@ Detect the cloud provider and print the result (with default timeout).
 package main
 
 import (
-  "fmt"
+ "fmt"
 
-  "github.com/nikhil-prabhu/clouddetect"
-  "github.com/nikhil-prabhu/clouddetect/logging"
-  "go.uber.org/zap"
+ "github.com/nikhil-prabhu/clouddetect/v2"
 )
 
 func main() {
-  // Optional; only if logging is required.
-  logger := zap.Must(zap.NewProduction()) // Use zap.NewDevelopment() for development mode
-  defer logger.Sync()
-  logging.SetLogger(logger)
+ provider := clouddetect.Detect()
 
-  provider := clouddetect.Detect(0)
+ // When tested on AWS:
+ fmt.Println(provider) // "aws"
 
-  // When tested on AWS:
-  fmt.Println(provider) // "aws"
-
-  // When tested on local/non-supported cloud environment:
-  fmt.Println(provider) // "unknown"
+ // When tested on local/non-supported cloud environment:
+ fmt.Println(provider) // "unknown"
 }
 ```
 
-Detect the cloud provider and print the result (with custom timeout).
+Detect the cloud provider and print the result (with custom timeout and logging).
 
 ```go
 package main
 
 import (
-	"fmt"
+ "fmt"
 
-	"github.com/nikhil-prabhu/clouddetect"
-	"github.com/nikhil-prabhu/clouddetect/logging"
-	"go.uber.org/zap"
+ "github.com/nikhil-prabhu/clouddetect/v2"
+ "go.uber.org/zap"
 )
 
 func main() {
-	// Optional; only if logging is required.
-	logger := zap.Must(zap.NewProduction()) // Use zap.NewDevelopment() for development mode
-	defer logger.Sync()
-	logging.SetLogger(logger)
+ // Use zap.NewDevelopment() for development mode
+ logger := zap.Must(zap.NewProduction())
+ defer logger.Sync()
 
-	provider := clouddetect.Detect(10)
+ provider := clouddetect.Detect(
+  clouddetect.WithTimeout(10),
+  clouddetect.WithLogger(logger),
+ )
 
-	// When tested on AWS:
-	fmt.Println(provider) // "aws"
+ // When tested on AWS:
+ fmt.Println(provider) // "aws"
 
-	// When tested on local/non-supported cloud environment:
-	fmt.Println(provider) // "unknown"
+ // When tested on local/non-supported cloud environment:
+ fmt.Println(provider) // "unknown"
 }
-
 ```
 
 You can also check the list of currently supported cloud providers.
@@ -108,13 +104,13 @@ You can also check the list of currently supported cloud providers.
 package main
 
 import (
-	"fmt"
+ "fmt"
 
-	"github.com/nikhil-prabhu/clouddetect"
+ "github.com/nikhil-prabhu/clouddetect/v2"
 )
 
 func main() {
-	fmt.Println(clouddetect.SupportedProviders)
+ fmt.Println(clouddetect.SupportedProviders)
 }
 ```
 
@@ -123,7 +119,8 @@ the [Module Documentation](https://pkg.go.dev/github.com/nikhil-prabhu/clouddete
 
 ## Contributing
 
-Contributions are welcome and greatly appreciated! If you’d like to contribute to clouddetect, here’s how you can help.
+Contributions are welcome and greatly appreciated! If you’d like to contribute
+to clouddetect, here’s how you can help.
 
 ### 1. Report Issues
 
@@ -137,36 +134,39 @@ Be sure to include:
 
 ### 2. Submit Pull Requests
 
-If you're submitting a [pull request](https://github.com/nikhil-prabhu/clouddetect/compare), please ensure the
-following.
+If you're submitting a
+[pull request](https://github.com/nikhil-prabhu/clouddetect/compare), please
+ensure the following.
 
 * Your code is formatted using `go fmt`
 
 ```bash
-$ go fmt ./...
+go fmt ./...
 ```
 
 * Code lints pass with (use `--fix` to autofix):
 
 ```bash
-$ golangci-lint run -v --fix
+golangci-lint run -v --fix
 ```
 
-**NOTE**: To install `golangci-lint`, follow the steps outlined [here](https://golangci-lint.run/welcome/install/#local-installation)
+**NOTE**: To install `golangci-lint`, follow the steps outlined
+[on this page](https://golangci-lint.run/welcome/install/#local-installation)
 
 * Your code contains sufficient unit tests and that all tests pass.
 
 ```bash
-$ go test ./...
+go test ./...
 ```
 
 ### 3. Improve Documentation
 
-If you find areas in the documentation that are unclear or incomplete, feel free to update the README or module-level
-documentation. Open a [pull request](https://github.com/nikhil-prabhu/clouddetect/compare) with your improvements.
+If you find areas in the documentation that are unclear or incomplete, feel free
+to update the README or module-level documentation. Open a
+[pull request](https://github.com/nikhil-prabhu/clouddetect/compare) with your improvements.
 
 ### 4. Review Pull Requests
 
-You can also contribute by
-reviewing [open pull requests](https://github.com/nikhil-prabhu/clouddetect/pulls?q=is%3Aopen+is%3Apr). Providing
-constructive feedback helps maintain a high-quality codebase.
+You can also contribute by reviewing
+[open pull requests](https://github.com/nikhil-prabhu/clouddetect/pulls?q=is%3Aopen+is%3Apr).
+Providing constructive feedback helps maintain a high-quality codebase.
