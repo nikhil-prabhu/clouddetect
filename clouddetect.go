@@ -9,15 +9,15 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/nikhil-prabhu/clouddetect/providers/alibaba"
-	"github.com/nikhil-prabhu/clouddetect/providers/aws"
-	"github.com/nikhil-prabhu/clouddetect/providers/azure"
-	"github.com/nikhil-prabhu/clouddetect/providers/digitalocean"
-	"github.com/nikhil-prabhu/clouddetect/providers/gcp"
-	"github.com/nikhil-prabhu/clouddetect/providers/oci"
-	"github.com/nikhil-prabhu/clouddetect/providers/openstack"
-	"github.com/nikhil-prabhu/clouddetect/providers/vultr"
-	"github.com/nikhil-prabhu/clouddetect/types"
+	"github.com/nikhil-prabhu/clouddetect/v2/providers/alibaba"
+	"github.com/nikhil-prabhu/clouddetect/v2/providers/aws"
+	"github.com/nikhil-prabhu/clouddetect/v2/providers/azure"
+	"github.com/nikhil-prabhu/clouddetect/v2/providers/digitalocean"
+	"github.com/nikhil-prabhu/clouddetect/v2/providers/gcp"
+	"github.com/nikhil-prabhu/clouddetect/v2/providers/oci"
+	"github.com/nikhil-prabhu/clouddetect/v2/providers/openstack"
+	"github.com/nikhil-prabhu/clouddetect/v2/providers/vultr"
+	"github.com/nikhil-prabhu/clouddetect/v2/types"
 )
 
 // DefaultDetectionTimeout is the default maximum time allowed for detection.

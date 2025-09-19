@@ -12,7 +12,7 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/nikhil-prabhu/clouddetect/types"
+	"github.com/nikhil-prabhu/clouddetect/v2/types"
 )
 
 const (

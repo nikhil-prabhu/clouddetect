@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nikhil-prabhu/clouddetect/types"
+	"github.com/nikhil-prabhu/clouddetect/v2/types"
 )
 
 func ExampleDetect_default() {
