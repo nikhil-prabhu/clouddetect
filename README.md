@@ -19,24 +19,24 @@ inspired by the Python-based
 Like these modules, `clouddetect` uses a combination of checking vendor files
 and metadata endpoints to accurately determine the cloud provider of a host.
 
-*While this library is structured similarly to the Rust crate, it follows Go
-conventions and idioms and is not a direct port.*
+_While this library is structured similarly to the Rust crate, it follows Go
+conventions and idioms and is not a direct port._
 
 ## Features
 
-* Currently, this module supports the identification of the following providers:
-  * Akamai Cloud (`akamai`)
-  * Amazon Web Services (`aws`)
-  * Microsoft Azure (`azure`)
-  * Google Cloud Platform (`gcp`)
-  * Alibaba Cloud (`alibaba`)
-  * OpenStack (`openstack`)
-  * DigitalOcean (`digitalocean`)
-  * Oracle Cloud Infrastructure (`oci`)
-  * Vultr (`vultr`)
-* Fast, simple and extensible.
-* Real-time console logging using the
-[`zap`](https://pkg.go.dev/go.uber.org/zap) module.
+- Currently, this module supports the identification of the following providers:
+  - Akamai Cloud (`akamai`)
+  - Amazon Web Services (`aws`)
+  - Microsoft Azure (`azure`)
+  - Google Cloud Platform (`gcp`)
+  - Alibaba Cloud (`alibaba`)
+  - OpenStack (`openstack`)
+  - DigitalOcean (`digitalocean`)
+  - Oracle Cloud Infrastructure (`oci`)
+  - Vultr (`vultr`)
+- Fast, simple and extensible.
+- Real-time console logging using the
+  [`zap`](https://pkg.go.dev/go.uber.org/zap) module.
 
 ## Usage
 
@@ -75,6 +75,7 @@ package main
 
 import (
  "fmt"
+ "time"
 
  "github.com/nikhil-prabhu/clouddetect/v2"
  "go.uber.org/zap"
@@ -86,7 +87,7 @@ func main() {
  defer logger.Sync()
 
  provider := clouddetect.Detect(
-  clouddetect.WithTimeout(10),
+  clouddetect.WithTimeout(10 * time.Second),
   clouddetect.WithLogger(logger),
  )
 
@@ -128,9 +129,9 @@ If you encounter a bug, unexpected behavior, or have a feature request, please o
 an [issue](https://github.com/nikhil-prabhu/clouddetect/issues/new).
 Be sure to include:
 
-* A clear description of the issue.
-* Steps to reproduce, if applicable.
-* Details about your environment.
+- A clear description of the issue.
+- Steps to reproduce, if applicable.
+- Details about your environment.
 
 ### 2. Submit Pull Requests
 
@@ -138,13 +139,13 @@ If you're submitting a
 [pull request](https://github.com/nikhil-prabhu/clouddetect/compare), please
 ensure the following.
 
-* Your code is formatted using `go fmt`
+- Your code is formatted using `go fmt`
 
 ```bash
 go fmt ./...
 ```
 
-* Code lints pass with (use `--fix` to autofix):
+- Code lints pass with (use `--fix` to autofix):
 
 ```bash
 golangci-lint run -v --fix
@@ -153,7 +154,7 @@ golangci-lint run -v --fix
 **NOTE**: To install `golangci-lint`, follow the steps outlined
 [on this page](https://golangci-lint.run/welcome/install/#local-installation)
 
-* Your code contains sufficient unit tests and that all tests pass.
+- Your code contains sufficient unit tests and that all tests pass.
 
 ```bash
 go test ./...
