@@ -63,9 +63,9 @@ var providers = map[types.ProviderId]Provider{
 	types.Vultr:        &vultr.Vultr{},
 }
 
-func WithTimeout(seconds uint64) Option {
+func WithTimeout(timeout time.Duration) Option {
 	return func(c *config) {
-		c.timeout = time.Duration(seconds) * time.Second
+		c.timeout = timeout
 	}
 }
 

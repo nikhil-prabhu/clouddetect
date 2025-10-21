@@ -27,7 +27,7 @@ func ExampleDetect_default() {
 
 func ExampleDetect_custom() {
 	// Detect the cloud service provider with custom timeout.
-	_ = Detect(WithTimeout(1))
+	_ = Detect(WithTimeout(1 * time.Second))
 
 	// Hardcoded values for example purposes (output may vary in real use cases)
 	provider := "aws"
@@ -50,7 +50,7 @@ func ExampleSupportedProviders() {
 }
 
 func TestDetect(t *testing.T) {
-	provider := Detect(WithTimeout(1))
+	provider := Detect(WithTimeout(1 * time.Second))
 
 	if !slices.Contains(append(SupportedProviders, types.Unknown), provider) {
 		t.Errorf("Expected provider to be one of %v, got %s", SupportedProviders, string(provider))
